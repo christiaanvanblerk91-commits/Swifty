@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f8fc">
+<title>Swifty — Driver Business Copilot</title>
+<style>
+:root{
+  --bg:#f5f7fb;--card:#fff;--text:#18212f;--muted:#697386;--line:#e6e9ef;
+  --accent:#e84d78;--accent2:#c93661;--green:#159957;--amber:#c78300;--blue:#3b73d1;
+  --shadow:0 8px 24px rgba(20,31,50,.07);--radius:18px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh;display:flex}
+.sidebar{width:245px;background:#fff;border-right:1px solid var(--line);padding:22px 14px;position:fixed;inset:0 auto 0 0;z-index:20}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:21px;padding:4px 10px 25px}
+.logo-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#f58ca7);color:#fff;display:grid;place-items:center;font-weight:900}
+.nav{display:grid;gap:6px}
+.nav button{border:0;background:transparent;text-align:left;padding:12px 13px;border-radius:12px;color:#5d6778;display:flex;gap:11px;align-items:center;font-weight:650}
+.nav button:hover,.nav button.active{background:#fff0f4;color:var(--accent2)}
+.nav .icon{width:20px;text-align:center}
+.main{margin-left:245px;width:calc(100% - 245px);padding:26px;max-width:1500px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px}
+.title h1{margin:0;font-size:28px}.title p{margin:5px 0 0;color:var(--muted)}
+.actions{display:flex;gap:8px;align-items:center}
+.btn{border:1px solid var(--line);background:#fff;color:var(--text);padding:10px 14px;border-radius:11px;font-weight:700}
+.btn:hover{background:#f8f9fb}.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.primary:hover{background:var(--accent2)}
+.btn.danger{color:#b4233f}.btn.small{padding:7px 10px;font-size:13px}
+.grid{display:grid;gap:16px}.stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:19px}
+.stat-label{color:var(--muted);font-size:13px;font-weight:650}.stat-value{font-size:29px;font-weight:800;margin-top:8px}.stat-note{font-size:12px;color:var(--muted);margin-top:4px}
+.two{grid-template-columns:1.25fr .75fr;margin-top:16px}.three{grid-template-columns:repeat(3,1fr);margin-top:16px}
+.card h2,.card h3{margin:0 0 14px}.card h2{font-size:18px}.card h3{font-size:15px}
+.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{text-align:left;padding:12px 8px;border-bottom:1px solid var(--line);font-size:13px;white-space:nowrap}.table th{color:var(--muted);font-weight:700}
+.badge{display:inline-flex;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:800}.badge.green{background:#eaf8f0;color:#08753f}.badge.amber{background:#fff5dc;color:#9a6500}.badge.blue{background:#edf4ff;color:#2f65bd}.badge.red{background:#fff0f2;color:#b4233f}
+.list{display:grid;gap:10px}.list-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}.list-item:last-child{border-bottom:0}
+.muted{color:var(--muted)}.empty{text-align:center;padding:30px;color:var(--muted)}
+.view{display:none}.view.active{display:block}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:750;color:#5e6878}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:10px 11px;background:#fff;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:#e68aa2;box-shadow:0 0 0 3px #fff0f4}.field textarea{min-height:95px;resize:vertical}
+.modal{position:fixed;inset:0;background:rgba(15,22,35,.45);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}.modal.show{display:flex}.modal-box{background:#fff;border-radius:20px;max-width:620px;width:100%;max-height:90vh;overflow:auto;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.2)}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.modal-head h2{margin:0}.close{border:0;background:#f1f3f7;width:34px;height:34px;border-radius:10px}
+.kpis{display:flex;gap:8px;flex-wrap:wrap}.kpi{background:#f7f8fb;padding:10px 12px;border-radius:12px}.kpi b{display:block;font-size:18px}.kpi span{font-size:11px;color:var(--muted)}
+.hero{background:linear-gradient(135deg,#fff,#fff4f7);border:1px solid #f5d9e1;border-radius:20px;padding:20px;margin-bottom:16px}.hero h2{margin:0 0 5px}.hero p{margin:0;color:var(--muted)}
+.search{display:flex;gap:8px;margin-bottom:14px}.search input{flex:1;border:1px solid var(--line);border-radius:11px;padding:10px 12px}
+.quick{display:flex;gap:8px;flex-wrap:wrap}
+.mobile-nav{display:none}
+.toast{position:fixed;right:20px;bottom:20px;background:#18212f;color:#fff;padding:12px 15px;border-radius:12px;box-shadow:var(--shadow);z-index:100;display:none}.toast.show{display:block}
+.progress{height:9px;background:#eef0f4;border-radius:99px;overflow:hidden}.progress i{display:block;height:100%;background:var(--accent);border-radius:99px}
+@media(max-width:900px){
+ .sidebar{display:none}.main{margin-left:0;width:100%;padding:16px 14px 85px}.stats{grid-template-columns:repeat(2,1fr)}.two,.three{grid-template-columns:1fr}
+ .mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);z-index:30;justify-content:space-around;padding:7px 4px calc(7px + env(safe-area-inset-bottom))}
+ .mobile-nav button{border:0;background:transparent;color:#6c7584;font-size:10px;font-weight:700;padding:4px}.mobile-nav button.active{color:var(--accent)}.mobile-nav span{display:block;font-size:19px;margin-bottom:2px}
+ .topbar{align-items:flex-start}.actions .secondary{display:none}.title h1{font-size:24px}.form-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="logo"><div class="logo-mark">S</div> Swifty</div>
+  <nav class="nav" id="sideNav"></nav>
+  <div style="position:absolute;bottom:22px;left:14px;right:14px">
+    <div class="card" style="padding:13px;box-shadow:none;background:#fafbfc">
+      <div style="font-size:12px;font-weight:800">Driver Business Copilot</div>
+      <div class="muted" style="font-size:11px;margin-top:4px">Clients • bookings • invoices • growth</div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="title"><h1 id="pageTitle">Dashboard</h1><p id="pageSubtitle">Your business at a glance.</p></div>
+    <div class="actions"><button class="btn secondary" onclick="exportData()">Export data</button><button class="btn primary" onclick="openBooking()">+ New booking</button></div>
+  </div>
+
+  <section id="dashboard" class="view active">
+    <div class="hero"><h2>Good to have you, Swifty.</h2><p>Keep bookings, clients, communication and money in one place.</p><div class="quick" style="margin-top:15px"><button class="btn primary small" onclick="openBooking()">Create booking</button><button class="btn small" onclick="openClient()">Add client</button><button class="btn small" onclick="openInvoice()">Create invoice</button></div></div>
+    <div class="grid stats" id="stats"></div>
+    <div class="grid two">
+      <div class="card"><h2>Upcoming bookings</h2><div id="upcoming"></div></div>
+      <div class="card"><h2>Business snapshot</h2><div id="snapshot"></div></div>
+    </div>
+    <div class="grid three">
+      <div class="card"><h3>Today's focus</h3><div id="focus"></div></div>
+      <div class="card"><h3>Outstanding invoices</h3><div id="outstanding"></div></div>
+      <div class="card"><h3>Growth</h3><div id="growth"></div></div>
+    </div>
+  </section>
+
+  <section id="bookings" class="view">
+    <div class="card">
+      <div class="search"><input id="bookingSearch" placeholder="Search bookings, clients or destinations..." oninput="renderBookings()"><button class="btn primary" onclick="openBooking()">+ Booking</button></div>
+      <div class="table-wrap"><table class="table"><thead><tr><th>Date</th><th>Client</th><th>Trip</th><th>Vehicle</th><th>Status</th><th>Amount</th><th></th></tr></thead><tbody id="bookingTable"></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="clients" class="view">
+    <div class="card">
+      <div class="search"><input id="clientSearch" placeholder="Search clients..." oninput="renderClients()"><button class="btn primary" onclick="openClient()">+ Client</button></div>
+      <div class="table-wrap"><table class="table"><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Bookings</th><th>Total value</th><th></th></tr></thead><tbody id="clientTable"></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="communications" class="view">
+    <div class="grid two">
+      <div class="card"><h2>Message centre</h2><p class="muted">Prepare professional client messages from your booking information.</p>
+        <div class="form-grid">
+          <div class="field"><label>Client</label><select id="messageClient"></select></div>
+          <div class="field"><label>Message type</label><select id="messageType"><option>Booking confirmation</option><option>Driver arrival</option><option>Trip reminder</option><option>Thank you</option><option>Payment reminder</option></select></div>
+          <div class="field full"><label>Message</label><textarea id="messageText"></textarea></div>
+        </div>
+        <div class="quick" style="margin-top:12px"><button class="btn primary" onclick="copyMessage()">Copy message</button><button class="btn" onclick="generateMessage()">Generate message</button></div>
+      </div>
+      <div class="card"><h2>Communication log</h2><div id="commLog"></div></div>
+    </div>
+  </section>
+
+  <section id="invoices" class="view">
+    <div class="card">
+      <div class="search"><input id="invoiceSearch" placeholder="Search invoices..." oninput="renderInvoices()"><button class="btn primary" onclick="openInvoice()">+ Invoice</button></div>
+      <div class="table-wrap"><table class="table"><thead><tr><th>Invoice</th><th>Client</th><th>Date</th><th>Due</th><th>Status</th><th>Amount</th><th></th></tr></thead><tbody id="invoiceTable"></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="growth" class="view">
+    <div class="grid two">
+      <div class="card"><h2>Growth planner</h2><p class="muted">Track simple business targets without needing another system.</p><div id="growthGoals"></div></div>
+      <div class="card"><h2>Business ideas</h2><div class="list">
+        <div class="list-item"><span>Ask happy clients for referrals</span><button class="btn small" onclick="toast('Idea saved')">Save</button></div>
+        <div class="list-item"><span>Follow up on completed trips</span><button class="btn small" onclick="toast('Idea saved')">Save</button></div>
+        <div class="list-item"><span>Build repeat-client packages</span><button class="btn small" onclick="toast('Idea saved')">Save</button></div>
+        <div class="list-item"><span>Keep a record of high-value routes</span><button class="btn small" onclick="toast('Idea saved')">Save</button></div>
+      </div></div>
+    </div>
+  </section>
+
+  <section id="admin" class="view">
+    <div class="grid two">
+      <div class="card"><h2>Business settings</h2><div class="form-grid">
+        <div class="field full"><label>Business name</label><input id="businessName" value="Swifty"></div>
+        <div class="field"><label>Driver name</label><input id="driverName" value=""></div>
+        <div class="field"><label>Currency</label><select id="currency"><option value="ZAR">ZAR — South African Rand</option><option value="USD">USD — US Dollar</option><option value="GBP">GBP — Pound</option><option value="EUR">EUR — Euro</option></select></div>
+        <div class="field full"><label>Default pickup note</label><textarea id="defaultNote">Please be ready 10 minutes before pickup.</textarea></div>
+      </div><button class="btn primary" style="margin-top:14px" onclick="saveSettings()">Save settings</button></div>
+      <div class="card"><h2>Data</h2><p class="muted">Your entries are stored locally in this browser. Use Export data to make a backup.</p><button class="btn" onclick="exportData()">Export JSON</button> <button class="btn danger" onclick="resetData()">Reset demo data</button></div>
+    </div>
+  </section>
+</main>
+</div>
+
+<div class="mobile-nav" id="mobileNav"></div>
+<div class="modal" id="modal"><div class="modal-box"><div class="modal-head"><h2 id="modalTitle">New item</h2><button class="close" onclick="closeModal()">×</button></div><div id="modalBody"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='swifty_app_v2';
+const today=new Date();
+const iso=d=>new Date(d).toISOString().slice(0,10);
+const money=(n)=>{const c=(state.settings.currency||'ZAR');return new Intl.NumberFormat(undefined,{style:'currency',currency:c,maximumFractionDigits:2}).format(Number(n)||0)};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const initial={
+ settings:{businessName:'Swifty',driverName:'',currency:'ZAR',defaultNote:'Please be ready 10 minutes before pickup.'},
+ clients:[
+  {id:'c1',name:'Sarah Mokoena',phone:'+27 82 123 4567',email:'sarah@example.com'},
+  {id:'c2',name:'James Naidoo',phone:'+27 71 555 0198',email:'james@example.com'},
+  {id:'c3',name:'Cape Executive Travel',phone:'+27 83 444 1200',email:'bookings@example.com'}
+ ],
+ bookings:[
+  {id:'b1',date:iso(new Date(Date.now()+86400000)),time:'08:30',clientId:'c1',from:'Sandton',to:'OR Tambo Airport',vehicle:'Sedan',status:'Confirmed',amount:850},
+  {id:'b2',date:iso(new Date(Date.now()+2*86400000)),time:'14:00',clientId:'c2',from:'Rosebank',to:'Pretoria',vehicle:'SUV',status:'Pending',amount:1650},
+  {id:'b3',date:iso(new Date(Date.now()+4*86400000)),time:'10:00',clientId:'c3',from:'OR Tambo Airport',to:'Fourways',vehicle:'Sedan',status:'Confirmed',amount:1100}
+ ],
+ invoices:[
+  {id:'INV-1001',clientId:'c1',date:iso(today),due:iso(new Date(Date.now()+7*86400000)),status:'Paid',amount:850},
+  {id:'INV-1002',clientId:'c2',date:iso(today),due:iso(new Date(Date.now()+7*86400000)),status:'Sent',amount:1650}
+ ],
+ comms:[{id:'m1',date:iso(today),clientId:'c1',type:'Booking confirmation',text:'Your booking is confirmed. Thank you for choosing Swifty.'}]
+};
+let state=load();
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x||structuredClone(initial)}catch(e){return structuredClone(initial)}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function clientName(id){return state.clients.find(c=>c.id===id)?.name||'Unknown client'}
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200)}
+function navItems(){return [['dashboard','⌂','Dashboard'],['bookings','▣','Bookings'],['clients','♙','Clients'],['communications','✉','Communications'],['invoices','▤','Invoices'],['growth','↗','Growth'],['admin','⚙','Admin']]}
+function renderNav(){const html=navItems().map(([id,ic,t])=>`<button data-nav="${id}" onclick="showView('${id}')"><span class="icon">${ic}</span>${t}</button>`).join('');document.getElementById('sideNav').innerHTML=html;document.getElementById('mobileNav').innerHTML=navItems().slice(0,5).map(([id,ic,t])=>`<button data-nav="${id}" onclick="showView('${id}')"><span>${ic}</span>${t}</button>`).join('')}
+function showView(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('active',b.dataset.nav===id));const item=navItems().find(x=>x[0]===id);document.getElementById('pageTitle').textContent=item?item[2]:'Dashboard';document.getElementById('pageSubtitle').textContent={dashboard:'Your business at a glance.',bookings:'Plan and manage every trip.',clients:'Keep client information organised.',communications:'Prepare and record client communication.',invoices:'Track what is owed and what has been paid.',growth:'Simple tools for growing the business.',admin:'Business preferences and local data.'}[id];if(id==='dashboard')renderDashboard();if(id==='bookings')renderBookings();if(id==='clients')renderClients();if(id==='communications')renderComms();if(id==='invoices')renderInvoices();if(id==='growth')renderGrowth();if(id==='admin')loadSettings()}
+function renderDashboard(){
+ const revenue=state.invoices.filter(x=>x.status==='Paid').reduce((a,x)=>a+Number(x.amount),0);
+ const pending=state.invoices.filter(x=>x.status!=='Paid').reduce((a,x)=>a+Number(x.amount),0);
+ const confirmed=state.bookings.filter(x=>x.status==='Confirmed').length;
+ document.getElementById('stats').innerHTML=[
+  ['Bookings',state.bookings.length,'All scheduled trips'],
+  ['Clients',state.clients.length,'Saved client profiles'],
+  ['Paid revenue',money(revenue),'Recorded as paid'],
+  ['Outstanding',money(pending),'Invoices not paid']
+ ].map(x=>`<div class="card"><div class="stat-label">${x[0]}</div><div class="stat-value">${x[1]}</div><div class="stat-note">${x[2]}</div></div>`).join('');
+ const upcoming=[...state.bookings].sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).slice(0,5);
+ document.getElementById('upcoming').innerHTML=upcoming.length?`<div class="list">${upcoming.map(b=>`<div class="list-item"><div><b>${escapeHtml(clientName(b.clientId))}</b><div class="muted">${formatDate(b.date)} · ${escapeHtml(b.time)} · ${escapeHtml(b.from)} → ${escapeHtml(b.to)}</div></div><span class="badge ${b.status==='Confirmed'?'green':'amber'}">${b.status}</span></div>`).join('')}</div>`:`<div class="empty">No bookings yet.</div>`;
+ document.getElementById('snapshot').innerHTML=`<div class="kpis"><div class="kpi"><b>${confirmed}</b><span>confirmed</span></div><div class="kpi"><b>${state.bookings.filter(x=>x.status==='Pending').length}</b><span>pending</span></div><div class="kpi"><b>${state.invoices.length}</b><span>invoices</span></div></div><p class="muted" style="margin-top:15px">Keep this dashboard as your starting point each day.</p>`;
+ const next=upcoming[0];document.getElementById('focus').innerHTML=next?`<b>${formatDate(next.date)} at ${next.time}</b><p class="muted">${escapeHtml(clientName(next.clientId))}<br>${escapeHtml(next.from)} → ${escapeHtml(next.to)}</p>`:'<div class="empty">Nothing scheduled.</div>';
+ const outs=state.invoices.filter(x=>x.status!=='Paid');document.getElementById('outstanding').innerHTML=outs.length?outs.map(i=>`<div class="list-item"><span>${i.id}<small class="muted" style="display:block">${escapeHtml(clientName(i.clientId))}</small></span><b>${money(i.amount)}</b></div>`).join(''):'<div class="empty">All invoices are paid.</div>';
+ const target=10000, pct=Math.min(100,Math.round(revenue/target*100));document.getElementById('growth').innerHTML=`<div class="muted">Paid revenue target</div><div style="display:flex;justify-content:space-between;margin:8px 0"><b>${money(revenue)}</b><span class="muted">${money(target)}</span></div><div class="progress"><i style="width:${pct}%"></i></div><div class="muted" style="font-size:12px;margin-top:8px">${pct}% of example target</div>`;
+}
+function renderBookings(){
+ const q=(document.getElementById('bookingSearch')?.value||'').toLowerCase();
+ const rows=state.bookings.filter(b=>(clientName(b.clientId)+' '+b.from+' '+b.to+' '+b.vehicle).toLowerCase().includes(q)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+ document.getElementById('bookingTable').innerHTML=rows.length?rows.map(b=>`<tr><td>${formatDate(b.date)}<br><span class="muted">${b.time}</span></td><td>${escapeHtml(clientName(b.clientId))}</td><td>${escapeHtml(b.from)} → ${escapeHtml(b.to)}</td><td>${escapeHtml(b.vehicle)}</td><td><span class="badge ${b.status==='Confirmed'?'green':b.status==='Completed'?'blue':'amber'}">${b.status}</span></td><td>${money(b.amount)}</td><td><button class="btn small" onclick="editBooking('${b.id}')">Edit</button> <button class="btn small danger" onclick="deleteBooking('${b.id}')">Delete</button></td></tr>`).join(''):`<tr><td colspan="7" class="empty">No bookings found.</td></tr>`;
+}
+function renderClients(){
+ const q=(document.getElementById('clientSearch')?.value||'').toLowerCase();
+ const rows=state.clients.filter(c=>(c.name+' '+c.phone+' '+c.email).toLowerCase().includes(q));
+ document.getElementById('clientTable').innerHTML=rows.length?rows.map(c=>{const bs=state.bookings.filter(b=>b.clientId===c.id);return `<tr><td><b>${escapeHtml(c.name)}</b></td><td>${escapeHtml(c.phone)}</td><td>${escapeHtml(c.email)}</td><td>${bs.length}</td><td>${money(bs.reduce((a,b)=>a+Number(b.amount),0))}</td><td><button class="btn small" onclick="editClient('${c.id}')">Edit</button> <button class="btn small danger" onclick="deleteClient('${c.id}')">Delete</button></td></tr>`}).join(''):`<tr><td colspan="6" class="empty">No clients found.</td></tr>`;
+}
+function renderComms(){
+ const sel=document.getElementById('messageClient');sel.innerHTML=state.clients.map(c=>`<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+ document.getElementById('commLog').innerHTML=state.comms.length?`<div class="list">${[...state.comms].reverse().map(m=>`<div class="list-item"><div><b>${escapeHtml(m.type)}</b><div class="muted">${escapeHtml(clientName(m.clientId))} · ${formatDate(m.date)}</div><div style="margin-top:5px;font-size:13px">${escapeHtml(m.text)}</div></div></div>`).join('')}</div>`:'<div class="empty">No messages logged.</div>';
+}
+function renderInvoices(){
+ const q=(document.getElementById('invoiceSearch')?.value||'').toLowerCase();
+ const rows=state.invoices.filter(i=>(i.id+' '+clientName(i.clientId)+' '+i.status).toLowerCase().includes(q));
+ document.getElementById('invoiceTable').innerHTML=rows.length?rows.map(i=>`<tr><td><b>${i.id}</b></td><td>${escapeHtml(clientName(i.clientId))}</td><td>${formatDate(i.date)}</td><td>${formatDate(i.due)}</td><td><span class="badge ${i.status==='Paid'?'green':i.status==='Overdue'?'red':'amber'}">${i.status}</span></td><td>${money(i.amount)}</td><td>${i.status!=='Paid'?`<button class="btn small" onclick="markPaid('${i.id}')">Mark paid</button>`:''} <button class="btn small danger" onclick="deleteInvoice('${i.id}')">Delete</button></td></tr>`).join(''):`<tr><td colspan="7" class="empty">No invoices found.</td></tr>`;
+}
+function renderGrowth(){const revenue=state.invoices.filter(i=>i.status==='Paid').reduce((a,i)=>a+Number(i.amount),0);const bookings=state.bookings.length;document.getElementById('growthGoals').innerHTML=[['Monthly paid revenue',revenue,10000,money(revenue),money(10000)],['Completed bookings',state.bookings.filter(b=>b.status==='Completed').length,10,state.bookings.filter(b=>b.status==='Completed').length+' bookings','10 bookings'],['Client base',state.clients.length,20,state.clients.length+' clients','20 clients']].map(g=>{const p=Math.min(100,Math.round(g[1]/g[2]*100));return `<div style="margin-bottom:20px"><div style="display:flex;justify-content:space-between"><b>${g[0]}</b><span class="muted">${g[3]} / ${g[4]}</span></div><div class="progress" style="margin-top:8px"><i style="width:${p}%"></i></div></div>`}).join('')}
+function openModal(title,body){document.getElementById('modalTitle').textContent=title;document.getElementById('modalBody').innerHTML=body;document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function clientOptions(selected=''){return state.clients.map(c=>`<option value="${c.id}" ${c.id===selected?'selected':''}>${escapeHtml(c.name)}</option>`).join('')}
+function openBooking(id=''){
+ const b=state.bookings.find(x=>x.id===id)||{date:iso(today),time:'09:00',clientId:state.clients[0]?.id||'',from:'',to:'',vehicle:'Sedan',status:'Pending',amount:''};
+ openModal(id?'Edit booking':'New booking',`<form onsubmit="submitBooking(event,'${id}')"><div class="form-grid">
+ <div class="field"><label>Date</label><input type="date" name="date" value="${b.date}" required></div><div class="field"><label>Time</label><input type="time" name="time" value="${b.time}" required></div>
+ <div class="field full"><label>Client</label><select name="clientId" required>${clientOptions(b.clientId)}</select></div>
+ <div class="field"><label>Pickup</label><input name="from" value="${escapeAttr(b.from)}" required></div><div class="field"><label>Destination</label><input name="to" value="${escapeAttr(b.to)}" required></div>
+ <div class="field"><label>Vehicle</label><select name="vehicle"><option ${b.vehicle==='Sedan'?'selected':''}>Sedan</option><option ${b.vehicle==='SUV'?'selected':''}>SUV</option><option ${b.vehicle==='Van'?'selected':''}>Van</option><option ${b.vehicle==='Luxury'?'selected':''}>Luxury</option></select></div>
+ <div class="field"><label>Status</label><select name="status"><option ${b.status==='Pending'?'selected':''}>Pending</option><option ${b.status==='Confirmed'?'selected':''}>Confirmed</option><option ${b.status==='Completed'?'selected':''}>Completed</option><option ${b.status==='Cancelled'?'selected':''}>Cancelled</option></select></div>
+ <div class="field"><label>Amount</label><input type="number" min="0" step="0.01" name="amount" value="${b.amount}" required></div>
+ </div><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button class="btn primary">${id?'Save changes':'Create booking'}</button></div></form>`);
+}
+function submitBooking(e,id){e.preventDefault();const f=new FormData(e.target);const data=Object.fromEntries(f);data.amount=Number(data.amount);if(id)Object.assign(state.bookings.find(x=>x.id===id),data);else state.bookings.push({id:uid(),...data});save();closeModal();renderBookings();renderDashboard();toast(id?'Booking updated':'Booking created')}
+function editBooking(id){openBooking(id)}
+function deleteBooking(id){if(!confirm('Delete this booking?'))return;state.bookings=state.bookings.filter(x=>x.id!==id);save();renderBookings();renderDashboard();toast('Booking deleted')}
+function openClient(id=''){const c=state.clients.find(x=>x.id===id)||{name:'',phone:'',email:''};openModal(id?'Edit client':'Add client',`<form onsubmit="submitClient(event,'${id}')"><div class="form-grid"><div class="field full"><label>Name</label><input name="name" value="${escapeAttr(c.name)}" required></div><div class="field"><label>Phone</label><input name="phone" value="${escapeAttr(c.phone)}"></div><div class="field"><label>Email</label><input type="email" name="email" value="${escapeAttr(c.email)}"></div></div><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button class="btn primary">${id?'Save changes':'Add client'}</button></div></form>`)}
+function submitClient(e,id){e.preventDefault();const d=Object.fromEntries(new FormData(e.target));if(id)Object.assign(state.clients.find(x=>x.id===id),d);else state.clients.push({id:uid(),...d});save();closeModal();renderClients();renderDashboard();toast(id?'Client updated':'Client added')}
+function editClient(id){openClient(id)}
+function deleteClient(id){if(state.bookings.some(b=>b.clientId===id)){toast('Client has bookings; delete those first.');return}if(!confirm('Delete this client?'))return;state.clients=state.clients.filter(x=>x.id!==id);save();renderClients();renderDashboard();toast('Client deleted')}
+function openInvoice(){const d=new Date();d.setDate(d.getDate()+7);openModal('Create invoice',`<form onsubmit="submitInvoice(event)"><div class="form-grid"><div class="field full"><label>Client</label><select name="clientId" required>${clientOptions()}</select></div><div class="field"><label>Invoice number</label><input name="id" value="INV-${Math.floor(1000+Math.random()*9000)}" required></div><div class="field"><label>Amount</label><input name="amount" type="number" min="0" step="0.01" required></div><div class="field"><label>Invoice date</label><input name="date" type="date" value="${iso(today)}" required></div><div class="field"><label>Due date</label><input name="due" type="date" value="${iso(d)}" required></div><div class="field full"><label>Status</label><select name="status"><option>Draft</option><option>Sent</option><option>Paid</option></select></div></div><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button class="btn primary">Create invoice</button></div></form>`)}
+function submitInvoice(e){e.preventDefault();const d=Object.fromEntries(new FormData(e.target));d.amount=Number(d.amount);state.invoices.push(d);save();closeModal();renderInvoices();renderDashboard();toast('Invoice created')}
+function markPaid(id){const i=state.invoices.find(x=>x.id===id);if(i)i.status='Paid';save();renderInvoices();renderDashboard();toast('Invoice marked paid')}
+function deleteInvoice(id){if(!confirm('Delete this invoice?'))return;state.invoices=state.invoices.filter(x=>x.id!==id);save();renderInvoices();renderDashboard();toast('Invoice deleted')}
+function generateMessage(){const cid=document.getElementById('messageClient').value;const c=state.clients.find(x=>x.id===cid);const type=document.getElementById('messageType').value;let text='';if(type==='Booking confirmation')text=`Hi ${c?.name||'there'}, your booking with Swifty is confirmed. We look forward to providing your transfer. ${state.settings.defaultNote}`;if(type==='Driver arrival')text=`Hi ${c?.name||'there'}, your Swifty driver is on the way and will meet you at the agreed pickup point.`;if(type==='Trip reminder')text=`Hi ${c?.name||'there'}, this is a reminder about your upcoming Swifty trip. Please let us know if anything has changed.`;if(type==='Thank you')text=`Hi ${c?.name||'there'}, thank you for choosing Swifty. We appreciate your business and hope to drive you again soon.`;if(type==='Payment reminder')text=`Hi ${c?.name||'there'}, a friendly reminder that your Swifty invoice is still outstanding. Please let us know if you need a copy or have any questions.`;document.getElementById('messageText').value=text}
+function copyMessage(){const t=document.getElementById('messageText').value;if(!t){toast('Generate a message first');return}navigator.clipboard?.writeText(t).then(()=>toast('Message copied')).catch(()=>toast('Select and copy the message'))}
+function loadSettings(){document.getElementById('businessName').value=state.settings.businessName;document.getElementById('driverName').value=state.settings.driverName;document.getElementById('currency').value=state.settings.currency;document.getElementById('defaultNote').value=state.settings.defaultNote}
+function saveSettings(){state.settings={businessName:document.getElementById('businessName').value,driverName:document.getElementById('driverName').value,currency:document.getElementById('currency').value,defaultNote:document.getElementById('defaultNote').value};save();renderDashboard();toast('Settings saved')}
+function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='swifty-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);toast('Backup exported')}
+function resetData(){if(!confirm('Reset Swifty to the starter data?'))return;state=structuredClone(initial);save();showView('dashboard');toast('Starter data restored')}
+function formatDate(s){if(!s)return'';return new Date(s+'T00:00:00').toLocaleDateString(undefined,{day:'2-digit',month:'short',year:'numeric'})}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function escapeAttr(s){return escapeHtml(s)}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+renderNav();renderDashboard();
+</script>
+</body>
+</html>
