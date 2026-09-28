@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1018">
+<meta name="description" content="Swifty — simple trip and fare management">
+<title>Swifty</title>
+<style>
+:root{
+  --bg:#0b1018;--panel:#111827;--panel2:#182130;--text:#f7fafc;
+  --muted:#98a5b5;--line:#293548;--accent:#35d07f;--accent2:#1ea86a;
+  --danger:#e05252;--warn:#e8b84d;--shadow:0 12px 30px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh;max-width:900px;margin:auto;padding-bottom:82px}
+header{position:sticky;top:0;z-index:20;background:rgba(11,16,24,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.top{display:flex;align-items:center;justify-content:space-between;padding:14px 16px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:38px;height:38px;border-radius:12px;background:var(--accent);color:#07120c;display:grid;place-items:center;font-weight:950;font-size:20px}
+.brand h1{font-size:20px;margin:0}.brand small{display:block;color:var(--muted);font-size:11px;margin-top:1px}
+.iconbtn{border:1px solid var(--line);background:var(--panel);color:var(--text);width:40px;height:40px;border-radius:12px}
+main{padding:18px 14px}
+.screen{display:none}.screen.active{display:block}
+h2{font-size:25px;margin:4px 0 5px}.sub{color:var(--muted);font-size:13px;margin:0 0 18px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.stat .label{font-size:12px;color:var(--muted)}.stat .value{font-size:24px;font-weight:850;margin-top:6px}
+.section-title{display:flex;justify-content:space-between;align-items:center;margin:22px 2px 10px}
+.section-title h3{margin:0;font-size:15px}.link{background:none;border:0;color:var(--accent);font-weight:700}
+label{display:block;color:var(--muted);font-size:12px;margin:0 0 6px}
+input,select,textarea{width:100%;border:1px solid var(--line);background:#0e151f;color:var(--text);border-radius:11px;padding:12px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+.field{margin-bottom:12px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.btn{border:0;border-radius:11px;padding:12px 15px;font-weight:800}
+.primary{background:var(--accent);color:#07120c}.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+.danger{background:var(--danger);color:white}.full{width:100%}
+.farebox{background:linear-gradient(135deg,#153524,#102319);border:1px solid #286d49;border-radius:16px;padding:17px;margin-top:14px}
+.farebox .big{font-size:38px;font-weight:950}.farebox small{color:#a8d8bd}
+.trip{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:13px 0}
+.trip:last-child{border-bottom:0}.trip strong{display:block}.trip small{display:block;color:var(--muted);margin-top:3px}
+.amount{font-weight:900;text-align:right}.empty{padding:28px 10px;text-align:center;color:var(--muted)}
+.badge{display:inline-block;border-radius:99px;padding:4px 8px;background:#203326;color:#82e5ad;font-size:11px;font-weight:800}
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:rgba(13,19,28,.97);border-top:1px solid var(--line);padding:8px max(8px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom));display:flex;justify-content:center}
+.navinner{width:100%;max-width:900px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.nav button{background:none;border:0;color:var(--muted);padding:7px 3px;border-radius:11px;font-size:11px}
+.nav button.active{color:var(--accent);background:#14251d}
+.nav .ico{display:block;font-size:19px;margin-bottom:2px}
+.toast{position:fixed;left:50%;bottom:88px;transform:translate(-50%,20px);background:#f7fafc;color:#07120c;padding:11px 15px;border-radius:12px;font-weight:800;opacity:0;pointer-events:none;transition:.2s;z-index:50;box-shadow:var(--shadow)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:60;padding:20px;align-items:flex-end}
+.modal.show{display:flex}.modalbox{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;width:100%;max-width:650px;margin:auto;max-height:90vh;overflow:auto}
+.close{float:right;background:none;border:0;color:var(--muted);font-size:24px}
+.note{font-size:12px;color:var(--muted);line-height:1.5}
+@media(min-width:700px){main{padding:25px 20px}.grid{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="top">
+    <div class="brand"><div class="logo">S</div><div><h1>Swifty</h1><small>Trip & fare manager</small></div></div>
+    <button class="iconbtn" onclick="openSettings()" aria-label="Settings">⚙</button>
+  </div>
+</header>
+
+<main>
+<section id="home" class="screen active">
+  <h2>Dashboard</h2>
+  <p class="sub" id="welcome">Your Swifty overview</p>
+  <div class="grid">
+    <div class="card stat"><div class="label">Today's trips</div><div class="value" id="todayTrips">0</div></div>
+    <div class="card stat"><div class="label">Today's earnings</div><div class="value" id="todayEarnings">R0.00</div></div>
+    <div class="card stat"><div class="label">Total trips</div><div class="value" id="totalTrips">0</div></div>
+    <div class="card stat"><div class="label">Total earnings</div><div class="value" id="totalEarnings">R0.00</div></div>
+  </div>
+  <div class="section-title"><h3>Quick actions</h3></div>
+  <div class="grid">
+    <button class="card secondary" onclick="showScreen('fare')" style="text-align:left"><b>🧮 Calculate fare</b><br><span class="note">Work out a trip price</span></button>
+    <button class="card secondary" onclick="showScreen('trips')" style="text-align:left"><b>🧾 Trip history</b><br><span class="note">View saved trips</span></button>
+  </div>
+  <div class="section-title"><h3>Recent trips</h3><button class="link" onclick="showScreen('trips')">View all</button></div>
+  <div class="card" id="recent"></div>
+</section>
+
+<section id="fare" class="screen">
+  <h2>Fare calculator</h2>
+  <p class="sub">Enter the trip details and Swifty calculates the fare instantly.</p>
+  <div class="card">
+    <div class="row">
+      <div class="field"><label for="tPickup">Pickup location</label><input id="tPickup" placeholder="Pickup location"></div>
+      <div class="field"><label for="tDrop">Destination</label><input id="tDrop" placeholder="Destination"></div>
+    </div>
+    <div class="field"><label for="tCustomer">Customer (optional)</label><input id="tCustomer" placeholder="Customer name"></div>
+    <div class="row3">
+      <div class="field"><label for="tKm">Distance (km)</label><input id="tKm" type="number" min="0" step=".1" value="0" oninput="calc()"></div>
+      <div class="field"><label for="tBase">Base fare (R)</label><input id="tBase" type="number" min="0" step=".01" value="0" oninput="calc()"></div>
+      <div class="field"><label for="tRate">Rate / km (R)</label><input id="tRate" type="number" min="0" step=".01" value="0" oninput="calc()"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label for="tExtra">Extras / tolls (R)</label><input id="tExtra" type="number" min="0" step=".01" value="0" oninput="calc()"></div>
+      <div class="field"><label for="tTip">Tip (R)</label><input id="tTip" type="number" min="0" step=".01" value="0" oninput="calc()"></div>
+    </div>
+    <div class="farebox"><small>CALCULATED FARE</small><div class="big" id="tFare">R0.00</div><div class="note">Base + distance × rate + extras + tip</div></div>
+    <div class="actions">
+      <button class="btn primary" onclick="saveTrip()">Save trip</button>
+      <button class="btn secondary" onclick="clearFare()">Clear</button>
+    </div>
+  </div>
+</section>
+
+<section id="trips" class="screen">
+  <h2>Trip history</h2>
+  <p class="sub">Saved trips are stored on this device.</p>
+  <div class="card">
+    <div class="row">
+      <div class="field"><label>Search</label><input id="tripSearch" placeholder="Location or customer" oninput="renderTrips()"></div>
+      <div class="field"><label>Date</label><input id="tripDate" type="date" onchange="renderTrips()"></div>
+    </div>
+  </div>
+  <div class="section-title"><h3>Saved trips</h3><button class="link" onclick="exportTrips()">Export</button></div>
+  <div class="card" id="tripList"></div>
+</section>
+
+<section id="settings" class="screen">
+  <h2>Settings</h2>
+  <p class="sub">Set your defaults for faster fare calculations.</p>
+  <div class="card">
+    <div class="field"><label for="driverName">Your name</label><input id="driverName" placeholder="Driver name"></div>
+    <div class="row">
+      <div class="field"><label for="defaultBase">Default base fare (R)</label><input id="defaultBase" type="number" min="0" step=".01"></div>
+      <div class="field"><label for="defaultRate">Default rate / km (R)</label><input id="defaultRate" type="number" min="0" step=".01"></div>
+    </div>
+    <div class="actions"><button class="btn primary" onclick="saveSettings()">Save settings</button></div>
+  </div>
+  <div class="section-title"><h3>Data</h3></div>
+  <div class="card">
+    <p class="note">Your trip data stays in your browser using local storage. Clearing browser/site data can remove it.</p>
+    <div class="actions"><button class="btn secondary" onclick="exportTrips()">Export trips</button><button class="btn danger" onclick="clearAllTrips()">Delete all trips</button></div>
+  </div>
+</section>
+</main>
+
+<nav class="nav"><div class="navinner">
+  <button data-screen="home" class="active" onclick="showScreen('home')"><span class="ico">⌂</span>Home</button>
+  <button data-screen="fare" onclick="showScreen('fare')"><span class="ico">🧮</span>Fare</button>
+  <button data-screen="trips" onclick="showScreen('trips')"><span class="ico">🧾</span>Trips</button>
+  <button data-screen="settings" onclick="showScreen('settings')"><span class="ico">⚙</span>Settings</button>
+</div></nav>
+</div>
+
+<div id="modal" class="modal" onclick="if(event.target===this)closeModal()">
+ <div class="modalbox"><button class="close" onclick="closeModal()">×</button><div id="modalContent"></div></div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+const KEY='swifty_trips_v1', SET='swifty_settings_v1';
+let trips=JSON.parse(localStorage.getItem(KEY)||'[]');
+let settings=JSON.parse(localStorage.getItem(SET)||'{}');
+
+function money(n){return 'R'+Number(n||0).toFixed(2)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function toast(msg){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');clearTimeout(window._toast);window._toast=setTimeout(()=>e.classList.remove('show'),2200)}
+function showScreen(id){
+ document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.screen===id));
+ if(id==='home')renderHome(); if(id==='trips')renderTrips(); if(id==='settings')loadSettings();
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function calc(){
+ const km=+document.getElementById('tKm').value||0, base=+document.getElementById('tBase').value||0;
+ const rate=+document.getElementById('tRate').value||0, extra=+document.getElementById('tExtra').value||0, tip=+document.getElementById('tTip').value||0;
+ document.getElementById('tFare').textContent=money(base+km*rate+extra+tip);
+}
+function clearFare(){
+ ['tPickup','tDrop','tCustomer'].forEach(id=>document.getElementById(id).value='');
+ ['tKm','tExtra','tTip'].forEach(id=>document.getElementById(id).value='0');
+ document.getElementById('tBase').value=settings.base??0; document.getElementById('tRate').value=settings.rate??0; calc();
+}
+function saveTrip(){
+ calc();
+ const fare=parseFloat(document.getElementById('tFare').textContent.replace('R',''))||0;
+ if(fare<=0){toast('Enter a fare amount first');return}
+ const trip={
+  id:Date.now(),date:new Date().toISOString(),pickup:document.getElementById('tPickup').value.trim(),
+  drop:document.getElementById('tDrop').value.trim(),customer:document.getElementById('tCustomer').value.trim(),
+  km:+document.getElementById('tKm').value||0,base:+document.getElementById('tBase').value||0,
+  rate:+document.getElementById('tRate').value||0,extra:+document.getElementById('tExtra').value||0,
+  tip:+document.getElementById('tTip').value||0,fare
+ };
+ trips.unshift(trip);localStorage.setItem(KEY,JSON.stringify(trips));toast('Trip saved');clearFare();renderHome();
+}
+function renderHome(){
+ const today=new Date().toDateString(), td=trips.filter(t=>new Date(t.date).toDateString()===today);
+ document.getElementById('todayTrips').textContent=td.length;
+ document.getElementById('todayEarnings').textContent=money(td.reduce((a,t)=>a+t.fare,0));
+ document.getElementById('totalTrips').textContent=trips.length;
+ document.getElementById('totalEarnings').textContent=money(trips.reduce((a,t)=>a+t.fare,0));
+ document.getElementById('welcome').textContent=settings.name?`Welcome back, ${settings.name}`:'Your Swifty overview';
+ const r=trips.slice(0,5), box=document.getElementById('recent');
+ box.innerHTML=r.length?r.map(tripHTML).join(''):'<div class="empty">No trips saved yet.<br>Calculate your first fare to get started.</div>';
+}
+function tripHTML(t){
+ const where=(t.pickup||'Pickup')+' → '+(t.drop||'Destination');
+ return `<div class="trip"><div><strong>${esc(where)}</strong><small>${esc(t.customer||'No customer')} · ${new Date(t.date).toLocaleString()} · ${t.km} km</small></div><div class="amount">${money(t.fare)}<br><span class="badge">Saved</span></div></div>`;
+}
+function renderTrips(){
+ const q=(document.getElementById('tripSearch')?.value||'').toLowerCase(), d=document.getElementById('tripDate')?.value||'';
+ const list=trips.filter(t=>{
+  const text=(t.pickup+' '+t.drop+' '+t.customer).toLowerCase();
+  return (!q||text.includes(q))&&(!d||t.date.slice(0,10)===d);
+ });
+ const box=document.getElementById('tripList');
+ box.innerHTML=list.length?list.map(t=>tripHTML(t)+`<div class="actions" style="margin:0 0 5px"><button class="btn secondary" onclick="viewTrip(${t.id})">Details</button><button class="btn danger" onclick="deleteTrip(${t.id})">Delete</button></div>`).join(''):'<div class="empty">No matching trips.</div>';
+}
+function viewTrip(id){
+ const t=trips.find(x=>x.id===id);if(!t)return;
+ document.getElementById('modalContent').innerHTML=`<h2>Trip details</h2><p class="sub">${new Date(t.date).toLocaleString()}</p>
+ <div class="card"><p><b>Pickup</b><br>${esc(t.pickup||'—')}</p><p><b>Destination</b><br>${esc(t.drop||'—')}</p><p><b>Customer</b><br>${esc(t.customer||'—')}</p>
+ <div class="grid3"><p><b>Distance</b><br>${t.km} km</p><p><b>Rate</b><br>${money(t.rate)}/km</p><p><b>Total</b><br>${money(t.fare)}</p></div></div>`;
+ document.getElementById('modal').classList.add('show');
+}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function deleteTrip(id){if(!confirm('Delete this trip?'))return;trips=trips.filter(t=>t.id!==id);localStorage.setItem(KEY,JSON.stringify(trips));renderTrips();renderHome();toast('Trip deleted')}
+function clearAllTrips(){if(!trips.length){toast('No trips to delete');return}if(confirm('Delete ALL saved trips? This cannot be undone.')){trips=[];localStorage.setItem(KEY,'[]');renderHome();renderTrips();toast('All trips deleted')}}
+function exportTrips(){
+ if(!trips.length){toast('No trips to export');return}
+ const blob=new Blob([JSON.stringify(trips,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='swifty-trips.json';a.click();URL.revokeObjectURL(url);toast('Export created');
+}
+function loadSettings(){
+ document.getElementById('driverName').value=settings.name||'';
+ document.getElementById('defaultBase').value=settings.base??0;
+ document.getElementById('defaultRate').value=settings.rate??0;
+}
+function saveSettings(){
+ settings={name:document.getElementById('driverName').value.trim(),base:+document.getElementById('defaultBase').value||0,rate:+document.getElementById('defaultRate').value||0};
+ localStorage.setItem(SET,JSON.stringify(settings));document.getElementById('tBase').value=settings.base;document.getElementById('tRate').value=settings.rate;calc();renderHome();toast('Settings saved');
+}
+function openSettings(){showScreen('settings')}
+document.addEventListener('DOMContentLoaded',()=>{
+ document.getElementById('tBase').value=settings.base??0;document.getElementById('tRate').value=settings.rate??0;
+ calc();renderHome();
+});
+</script>
+</body>
+</html>
