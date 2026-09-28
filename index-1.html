@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b0d12">
+<title>SWIFTY</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0b0d12;color:#f4f7fb;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:10;background:#0b0d12;border-bottom:1px solid #252a33;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.brand{font-weight:900;letter-spacing:2px;font-size:22px}.sub{font-size:11px;color:#8e98a8}
+main{max-width:760px;margin:auto;padding:16px 16px 90px}.page{display:none}.page.active{display:block}
+h1{font-size:27px;margin:8px 0}.muted{color:#8e98a8}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.card{background:#141820;border:1px solid #292f3a;border-radius:14px;padding:14px;margin:10px 0}
+label{display:block;font-size:12px;color:#aeb7c6;margin:9px 0 5px}
+input,select,textarea{width:100%;background:#0f1218;color:#fff;border:1px solid #303744;border-radius:10px;padding:12px;font:inherit}
+textarea{min-height:90px;resize:vertical}
+button{border:0;border-radius:11px;padding:12px 15px;background:#f4f7fb;color:#0b0d12;font-weight:800;margin:5px 4px 5px 0}
+button.secondary{background:#252b35;color:#fff}.danger{background:#7e2934;color:#fff}
+.stat{font-size:25px;font-weight:900}.small{font-size:12px;color:#9ba5b5}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:9px 5px;border-bottom:1px solid #292f3a}
+nav{position:fixed;bottom:0;left:0;right:0;background:#10131a;border-top:1px solid #292f3a;display:flex;justify-content:center;z-index:20}
+nav button{flex:1;max-width:120px;background:transparent;color:#aeb7c6;border-radius:0;margin:0;padding:12px 5px;font-size:11px}
+nav button.on{color:#fff;background:#1b2029}
+#toast{position:fixed;left:50%;bottom:72px;transform:translateX(-50%);background:#fff;color:#111;padding:10px 14px;border-radius:10px;display:none;z-index:30;font-weight:700}
+.kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.kpi .card{margin:0}
+.actions{display:flex;flex-wrap:wrap}
+.badge{display:inline-block;padding:4px 8px;border-radius:99px;background:#252b35;color:#cbd3df;font-size:11px}
+@media(min-width:600px){.kpi{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<header><div><div class="brand">SWIFTY</div><div class="sub">FAST. SIMPLE. YOUR BUSINESS.</div></div><button class="secondary" onclick="voice()">🎙️</button></header>
+
+<main>
+<section id="home" class="page active">
+<h1>Dashboard</h1><p class="muted">Your driving business at a glance.</p>
+<div class="kpi">
+<div class="card"><div class="small">Today</div><div class="stat" id="todayTrips">0</div><div class="small">trips</div></div>
+<div class="card"><div class="small">Today km</div><div class="stat" id="todayKm">0</div></div>
+<div class="card"><div class="small">Today revenue</div><div class="stat">R<span id="todayRev">0.00</span></div></div>
+<div class="card"><div class="small">Clients</div><div class="stat" id="clientCount">0</div></div>
+</div>
+<div class="card"><h2>Quick actions</h2><div class="actions">
+<button onclick="show('trip')">🚗 Start Trip</button><button onclick="show('clients')">👥 Clients</button><button onclick="show('log')">📒 Logbook</button><button onclick="show('monthly')">📊 Monthly</button>
+</div></div>
+<div class="card"><h2>Swifty Co-Pilot</h2><p id="copilot" class="muted">Add a few trips and clients and I'll summarize your activity here.</p></div>
+</section>
+
+<section id="trip" class="page">
+<h1>Start Trip</h1><p class="muted">Record a trip and calculate the fare automatically.</p>
+<div class="card">
+<label>Date</label><input id="tDate" type="date">
+<label>Client</label><select id="tClient"></select>
+<label>Pickup</label><input id="tPickup" placeholder="Pickup location">
+<label>Drop-off</label><input id="tDrop" placeholder="Destination">
+<div class="grid"><div><label>Distance (km)</label><input id="tKm" type="number" min="0" step=".1" placeholder="0"></div>
+<div><label>Base fare (R)</label><input id="tBase" type="number" min="0" step=".01" value="0"></div></div>
+<div class="grid"><div><label>Rate / km (R)</label><input id="tRate" type="number" min="0" step=".01" value="0"></div>
+<div><label>Extra (R)</label><input id="tExtra" type="number" min="0" step=".01" value="0"></div></div>
+<label>Total fare (R)</label><input id="tFare" readonly>
+<div class="actions"><button onclick="calc()">Calculate Fare</button><button onclick="saveTrip()">Save Trip</button><button class="secondary" onclick="clearTrip()">Clear</button></div>
+<p class="small">Trip proof/photo selection can be added from your phone after saving if needed; this version keeps the core trip record local in the browser.</p>
+</div>
+</section>
+
+<section id="clients" class="page">
+<h1>Clients</h1><p class="muted">Keep customer details and prospect notes in one place.</p>
+<div class="card">
+<h2>Add Client</h2><label>Name</label><input id="cName" placeholder="Client name">
+<label>Phone</label><input id="cPhone" placeholder="Phone number">
+<label>Email</label><input id="cEmail" type="email" placeholder="Email">
+<label>Type</label><select id="cType"><option>Client</option><option>Prospect</option></select>
+<label>Notes</label><textarea id="cNotes" placeholder="Notes, preferences, follow-up..."></textarea>
+<button onclick="saveClient()">Save Client</button>
+</div>
+<div id="clientList"></div>
+</section>
+
+<section id="log" class="page">
+<h1>Logbook</h1><p class="muted">Your saved trips.</p>
+<div class="card"><div class="actions"><button onclick="exportData()">Export Data</button><button class="secondary" onclick="document.getElementById('importFile').click()">Import Data</button><button class="danger" onclick="clearAll()">Clear All</button></div><input id="importFile" type="file" accept=".json" hidden onchange="importData(event)"></div>
+<div class="card" style="overflow:auto"><table><thead><tr><th>Date</th><th>Client</th><th>Route</th><th>Km</th><th>Fare</th></tr></thead><tbody id="tripList"></tbody></table></div>
+</section>
+
+<section id="monthly" class="page">
+<h1>Monthly</h1><p class="muted">Kilometres, trips and revenue by month.</p>
+<div id="monthlyList"></div>
+<div class="card"><h2>Growth / prospects</h2><p id="growth" class="muted"></p><button onclick="show('clients')">Manage prospects</button></div>
+</section>
+</main>
+
+<div id="toast"></div>
+<nav>
+<button data-page="home" onclick="show('home')">⌂<br>Home</button>
+<button data-page="trip" onclick="show('trip')">🚗<br>Trip</button>
+<button data-page="clients" onclick="show('clients')">👥<br>Clients</button>
+<button data-page="log" onclick="show('log')">📒<br>Logbook</button>
+<button data-page="monthly" onclick="show('monthly')">📊<br>Monthly</button>
+</nav>
+
+<script>
+const KEY='swifty_data_v3';
+let db=JSON.parse(localStorage.getItem(KEY)||'{"clients":[],"trips":[]}');
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function toast(s){const t=$('toast');t.textContent=s;t.style.display='block';clearTimeout(window._toast);window._toast=setTimeout(()=>t.style.display='none',2200)}
+function today(){return new Date().toISOString().slice(0,10)}
+function show(id){
+ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+ $(id).classList.add('active');
+ document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x.dataset.page===id));
+ if(id==='trip')clients();
+ render();
+ window.scrollTo(0,0)
+}
+function clients(){
+ $('tClient').innerHTML='<option value="">Select client</option>'+db.clients.map(c=>`<option value="${c.id}">${esc(c.name)} (${esc(c.type)})</option>`).join('')
+}
+function calc(){
+ const km=Number($('tKm').value)||0, base=Number($('tBase').value)||0, rate=Number($('tRate').value)||0, extra=Number($('tExtra').value)||0;
+ $('tFare').value=(base+km*rate+extra).toFixed(2)
+}
+function clearTrip(){
+ ['tPickup','tDrop','tKm','tExtra','tFare'].forEach(id=>$(id).value='');
+ $('tBase').value='0';$('tRate').value='0';$('tDate').value=today();$('tClient').value=''
+}
+function saveTrip(){
+ calc();
+ const fare=Number($('tFare').value)||0, km=Number($('tKm').value)||0;
+ if(!km && !fare){toast('Enter distance or fare first');return}
+ db.trips.unshift({id:Date.now(),date:$('tDate').value||today(),clientId:$('tClient').value,pickup:$('tPickup').value,drop:$('tDrop').value,km,fare});
+ save();clearTrip();toast('Trip saved ✓');show('log')
+}
+function saveClient(){
+ const name=$('cName').value.trim();if(!name){toast('Enter a client name');return}
+ db.clients.push({id:String(Date.now()),name,phone:$('cPhone').value,email:$('cEmail').value,type:$('cType').value,notes:$('cNotes').value});
+ save();['cName','cPhone','cEmail','cNotes'].forEach(id=>$(id).value='');toast('Client saved ✓')
+}
+function clientName(id){const c=db.clients.find(x=>String(x.id)===String(id));return c?c.name:'Walk-in'}
+function renderClients(){
+ $('clientList').innerHTML=db.clients.length?db.clients.map(c=>`<div class="card"><b>${esc(c.name)}</b> <span class="badge">${esc(c.type)}</span><div class="small">${esc(c.phone||'')}${c.email?' · '+esc(c.email):''}</div><p class="muted">${esc(c.notes||'')}</p><button class="secondary" onclick="messageClient('${c.id}')">Message</button><button class="danger" onclick="deleteClient('${c.id}')">Delete</button></div>`).join(''):'<div class="card muted">No clients yet.</div>'
+}
+function messageClient(id){
+ const c=db.clients.find(x=>String(x.id)===String(id));if(!c)return;
+ const text=encodeURIComponent('Hi '+c.name+', this is Swifty. Just checking in regarding your transport needs.');
+ if(c.phone) location.href='sms:'+c.phone+'?body='+text; else if(c.email) location.href='mailto:'+c.email+'?subject=Swifty&body='+text; else toast('Add a phone or email first')
+}
+function deleteClient(id){if(confirm('Delete this client?')){db.clients=db.clients.filter(c=>String(c.id)!==String(id));save();toast('Client deleted')}}
+function renderTrips(){
+ $('tripList').innerHTML=db.trips.length?db.trips.map(t=>`<tr><td>${esc(t.date)}</td><td>${esc(clientName(t.clientId))}</td><td>${esc(t.pickup||'')} → ${esc(t.drop||'')}</td><td>${Number(t.km).toFixed(1)}</td><td>R${Number(t.fare).toFixed(2)}</td></tr>`).join(''):'<tr><td colspan="5" class="muted">No trips yet.</td></tr>'
+}
+function renderMonthly(){
+ const months={};
+ db.trips.forEach(t=>{const m=(t.date||today()).slice(0,7);if(!months[m])months[m]={trips:0,km:0,rev:0};months[m].trips++;months[m].km+=Number(t.km)||0;months[m].rev+=Number(t.fare)||0});
+ const arr=Object.entries(months).sort((a,b)=>b[0].localeCompare(a[0]));
+ $('monthlyList').innerHTML=arr.length?arr.map(([m,v])=>`<div class="card"><h2>${esc(m)}</h2><div class="grid"><div><b>${v.trips}</b><div class="small">Trips</div></div><div><b>${v.km.toFixed(1)}</b><div class="small">Kilometres</div></div><div><b>R${v.rev.toFixed(2)}</b><div class="small">Revenue</div></div></div></div>`).join(''):'<div class="card muted">No monthly data yet.</div>';
+ const prospects=db.clients.filter(c=>c.type==='Prospect').length;
+ $('growth').textContent=prospects+' prospect'+(prospects===1?'':'s')+' currently saved. Add prospects and follow up from the Clients section.'
+}
+function render(){
+ const td=today(), ts=db.trips.filter(t=>t.date===td);
+ $('todayTrips').textContent=ts.length;$('todayKm').textContent=ts.reduce((a,t)=>a+(Number(t.km)||0),0).toFixed(1);
+ $('todayRev').textContent=ts.reduce((a,t)=>a+(Number(t.fare)||0),0).toFixed(2);$('clientCount').textContent=db.clients.length;
+ renderClients();renderTrips();renderMonthly();
+ $('copilot').textContent=db.trips.length?`You have ${db.trips.length} recorded trip${db.trips.length===1?'':'s'}, ${db.trips.reduce((a,t)=>a+(Number(t.km)||0),0).toFixed(1)} km logged and R${db.trips.reduce((a,t)=>a+(Number(t.fare)||0),0).toFixed(2)} in recorded fares.`:'Add a few trips and clients and I will summarize your activity here.';
+}
+function exportData(){
+ const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='swifty-backup.json';a.click();URL.revokeObjectURL(a.href);toast('Backup exported')
+}
+function importData(e){
+ const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!Array.isArray(x.clients)||!Array.isArray(x.trips))throw Error();db=x;save();toast('Backup imported ✓')}catch{toast('Invalid Swifty backup')}};r.readAsText(f)
+}
+function clearAll(){if(confirm('Delete all Swifty clients and trips?')){db={clients:[],trips:[]};save();toast('All data cleared')}}
+function voice(){
+ if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){toast('Voice commands are not supported in this browser');return}
+ const R=window.SpeechRecognition||window.webkitSpeechRecognition,r=new R();r.lang='en-ZA';r.onresult=e=>{const q=e.results[0][0].transcript.toLowerCase();if(q.includes('trip'))show('trip');else if(q.includes('client'))show('clients');else if(q.includes('log'))show('log');else if(q.includes('month'))show('monthly');else show('home');toast('Voice: '+q)};r.start();toast('Listening…')
+}
+$('tDate').value=today();render();show('home');
+</script>
+</body>
+</html>
