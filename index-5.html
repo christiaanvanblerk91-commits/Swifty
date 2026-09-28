@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#08110e">
+<title>Swifty — Trip & Business Manager</title>
+<style>
+:root{
+  --bg:#07100e; --panel:#101b18; --panel2:#15231f; --line:#24332e;
+  --text:#f4f7f6; --muted:#9ba9a4; --green:#39d98a; --green2:#21b870;
+  --danger:#ff6b6b; --amber:#f7c85c; --blue:#65b6ff;
+  --shadow:0 14px 40px rgba(0,0,0,.28); --radius:22px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{min-height:100vh}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{max-width:1100px;margin:auto;min-height:100vh;padding-bottom:92px}
+.topbar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:16px 18px;background:rgba(7,16,14,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.brand{display:flex;gap:12px;align-items:center}
+.brandmark{width:44px;height:44px;border-radius:14px;background:var(--green);color:#062014;display:grid;place-items:center;font-size:23px;font-weight:900}
+.brand h1{font-size:18px;margin:0}.brand p{font-size:12px;color:var(--muted);margin:2px 0 0}
+.iconbtn{width:42px;height:42px;border:1px solid var(--line);background:var(--panel);border-radius:14px;color:var(--text)}
+main{padding:22px 16px}
+.view{display:none}.view.active{display:block}
+.hero{background:linear-gradient(135deg,#10231d,#0f1816);border:1px solid #284039;border-radius:28px;padding:20px;box-shadow:var(--shadow);margin-bottom:18px}
+.heroGrid{display:grid;grid-template-columns:1.25fr .75fr;gap:18px;align-items:center}
+.kicker{color:var(--green);font-weight:800;text-transform:uppercase;font-size:12px;letter-spacing:.12em}
+.hero h2{font-size:34px;line-height:1.06;margin:8px 0 10px}
+.hero p{color:var(--muted);margin:0 0 18px}
+.heroActions{display:flex;gap:10px;flex-wrap:wrap}
+.primary{background:var(--green);border:0;color:#04140d;font-weight:900;padding:13px 18px;border-radius:14px}
+.secondary{background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:12px 16px;border-radius:14px;font-weight:750}
+.assistant{background:#09120f;border:1px solid #274138;border-radius:22px;display:grid;place-items:center;padding:14px;min-height:185px}
+.car{width:100%;max-width:270px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px}
+.stat .label{color:var(--muted);font-size:12px}.stat .value{font-size:25px;font-weight:900;margin-top:6px}
+.sectionHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:22px 0 11px}
+.sectionHead h3{margin:0;font-size:18px}.link{color:var(--green);font-weight:800;background:none;border:0;padding:0}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px}
+.actionCard{text-align:left;background:var(--panel);border:1px solid var(--line);color:var(--text);width:100%;transition:.15s}
+.actionCard:active{transform:scale(.99)}
+.actionIcon{font-size:22px}.actionCard h4{margin:8px 0 3px;font-size:16px}.actionCard p{margin:0;color:var(--muted);font-size:13px}
+.empty{color:var(--muted);text-align:center;padding:28px 16px;border:1px dashed var(--line);border-radius:18px}
+.form{display:grid;gap:12px}.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{font-size:12px;color:var(--muted);display:grid;gap:7px}
+input,select,textarea{width:100%;background:#0b1512;border:1px solid var(--line);border-radius:13px;color:var(--text);padding:12px 13px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:#418b69;box-shadow:0 0 0 3px rgba(57,217,138,.08)}
+textarea{min-height:100px;resize:vertical}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.toolbar input{flex:1;min-width:180px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#0d1d18;border:1px solid var(--line);color:var(--muted);font-size:12px}
+.trip{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
+.tripTitle{font-weight:850}.tripMeta{font-size:13px;color:var(--muted);margin-top:4px}
+.tripRight{text-align:right}.money{font-weight:900;font-size:18px}.tripActions{display:flex;gap:7px;justify-content:flex-end;margin-top:7px}
+.smallbtn{border:1px solid var(--line);background:#0d1714;color:var(--text);border-radius:10px;padding:7px 10px;font-size:12px}
+.danger{color:#ff8d8d}.success{color:var(--green)}.amber{color:var(--amber)}.blue{color:var(--blue)}
+.tableWrap{overflow:auto;border:1px solid var(--line);border-radius:18px}
+table{width:100%;border-collapse:collapse;min-width:640px}th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}th{color:var(--muted);font-weight:700;background:#0e1815}tr:last-child td{border-bottom:0}
+.message{display:grid;gap:10px}.message textarea{min-height:120px}
+.settingsGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.setting{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.switch{position:relative;width:48px;height:28px}.switch input{display:none}.slider{position:absolute;inset:0;background:#24342f;border-radius:99px}.slider:before{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}.switch input:checked + .slider{background:var(--green2)}.switch input:checked + .slider:before{transform:translateX(20px)}
+.bottomnav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(1100px,100%);z-index:30;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:10px 10px calc(10px + env(safe-area-inset-bottom));background:rgba(8,16,14,.97);border-top:1px solid var(--line);backdrop-filter:blur(14px)}
+.navbtn{border:0;background:transparent;color:var(--muted);padding:8px 4px;border-radius:14px;font-size:11px;display:grid;gap:4px;place-items:center}.navbtn .ico{font-size:20px}.navbtn.active{background:#0e2a20;color:var(--green)}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.68);z-index:50;align-items:flex-end;justify-content:center}.modal.show{display:flex}.sheet{width:min(680px,100%);background:#0d1714;border:1px solid var(--line);border-bottom:0;border-radius:24px 24px 0 0;padding:18px;max-height:88vh;overflow:auto}.sheetHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.sheetHead h3{margin:0}
+.toast{position:fixed;left:50%;bottom:94px;transform:translateX(-50%);background:#eaf8f1;color:#092216;padding:11px 15px;border-radius:12px;font-weight:800;z-index:100;display:none;box-shadow:var(--shadow)}.toast.show{display:block}
+.bar{height:9px;background:#1a2924;border-radius:99px;overflow:hidden}.bar span{display:block;height:100%;background:var(--green);border-radius:99px}
+.subtle{color:var(--muted);font-size:13px}
+.bigNumber{font-size:32px;font-weight:950}.twoCol{display:grid;grid-template-columns:1.15fr .85fr;gap:12px}
+.list{display:grid;gap:10px}.listItem{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.listItem:last-child{border-bottom:0}
+@media(max-width:820px){.heroGrid,.twoCol{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.settingsGrid{grid-template-columns:1fr}.grid3{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){main{padding:18px 12px}.hero h2{font-size:28px}.grid2,.row2,.grid3{grid-template-columns:1fr}.trip{grid-template-columns:1fr}.tripRight{text-align:left}.tripActions{justify-content:flex-start}.bottomnav{padding-left:6px;padding-right:6px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="brand">
+    <div class="brandmark">S</div>
+    <div><h1>Swifty</h1><p>Driver & business command centre</p></div>
+  </div>
+  <button class="iconbtn" onclick="openSettings()">⚙️</button>
+</header>
+
+<main>
+<section id="dashboard" class="view active">
+  <div class="hero">
+    <div class="heroGrid">
+      <div>
+        <div class="kicker">Your day at a glance</div>
+        <h2>Ready when you are.</h2>
+        <p>Start a trip, manage clients, track earnings and keep the whole business in one place.</p>
+        <div class="heroActions">
+          <button class="primary" onclick="openTrip()">▶ Start Trip</button>
+          <button class="secondary" onclick="navigate('fare')">🧮 Calculate Fare</button>
+        </div>
+      </div>
+      <div class="assistant">
+        <svg class="car" viewBox="0 0 360 190" fill="none" aria-label="Swifty car">
+          <path d="M55 112c9-21 18-52 40-65 18-11 74-16 122-14 28 1 54 7 67 25l25 34c9 12 17 19 24 20 8 2 10 8 10 18v12H43v-15c0-9 4-13 12-15Z" fill="#39d98a"/>
+          <path d="M111 44c18-7 50-11 94-10 22 1 42 4 54 9l22 40H91l20-39Z" fill="#0c1814"/>
+          <path d="M126 47h45v27h-59l14-27Zm56 0h20c17 1 33 3 44 7l15 20h-79V47Z" fill="#203a31"/>
+          <circle cx="108" cy="137" r="25" fill="#0a100e"/><circle cx="108" cy="137" r="11" fill="#61736c"/>
+          <circle cx="280" cy="137" r="25" fill="#0a100e"/><circle cx="280" cy="137" r="11" fill="#61736c"/>
+          <path d="M76 105h231" stroke="#b7f9d8" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="324" cy="112" r="5" fill="#f7c85c"/>
+          <text x="171" y="126" text-anchor="middle" fill="#06130d" font-size="22" font-weight="900">SWIFTY</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats" id="dashStats"></div>
+
+  <div class="sectionHead"><h3>Quick actions</h3></div>
+  <div class="grid3">
+    <button class="actionCard card" onclick="openTrip()"><div class="actionIcon">🚗</div><h4>Start a trip</h4><p>Capture a new job from pickup to payment.</p></button>
+    <button class="actionCard card" onclick="navigate('clients')"><div class="actionIcon">👤</div><h4>Clients</h4><p>Keep customers, addresses and notes organised.</p></button>
+    <button class="actionCard card" onclick="navigate('messages')"><div class="actionIcon">💬</div><h4>Messages</h4><p>Send saved pickup and payment messages.</p></button>
+  </div>
+
+  <div class="sectionHead"><h3>Recent trips</h3><button class="link" onclick="navigate('trips')">View all</button></div>
+  <div id="recentTrips"></div>
+</section>
+
+<section id="fare" class="view">
+  <div class="sectionHead"><h2>Fare calculator</h2><span class="pill">Live calculation</span></div>
+  <div class="card form">
+    <div class="row2">
+      <label>Distance (km)<input id="fareKm" type="number" min="0" step="0.1" value="10" oninput="calcFare()"></label>
+      <label>Base fare (R)<input id="fareBase" type="number" min="0" step="1" value="35" oninput="calcFare()"></label>
+    </div>
+    <div class="row2">
+      <label>Rate per km (R)<input id="fareRate" type="number" min="0" step="0.1" value="12" oninput="calcFare()"></label>
+      <label>Extra charges (R)<input id="fareExtra" type="number" min="0" step="0.1" value="0" oninput="calcFare()"></label>
+    </div>
+    <div class="card" style="background:#0a1512">
+      <div class="subtle">Estimated fare</div><div class="bigNumber" id="fareTotal">R0.00</div>
+      <div class="subtle" id="fareBreakdown">R35.00 base + R120.00 distance</div>
+    </div>
+    <button class="primary" onclick="saveCalculatedTrip()">Save as trip</button>
+  </div>
+  <div class="sectionHead"><h3>Pricing profile</h3></div>
+  <div class="card subtle">Your pricing fields stay on this device and are used by the trip calculator. Change them here any time.</div>
+</section>
+
+<section id="trips" class="view">
+  <div class="sectionHead"><h2>Trip history</h2><button class="secondary" onclick="openTrip()">＋ New trip</button></div>
+  <div class="toolbar"><input id="tripSearch" placeholder="Search client, pickup or destination" oninput="renderTrips()"><select id="tripFilter" onchange="renderTrips()"><option value="all">All trips</option><option value="paid">Paid</option><option value="unpaid">Unpaid</option></select></div>
+  <div id="tripList" class="list"></div>
+</section>
+
+<section id="clients" class="view">
+  <div class="sectionHead"><h2>Clients</h2><button class="secondary" onclick="openClient()">＋ Client</button></div>
+  <div class="toolbar"><input id="clientSearch" placeholder="Search clients" oninput="renderClients()"></div>
+  <div id="clientList" class="list"></div>
+</section>
+
+<section id="logbook" class="view">
+  <div class="sectionHead"><h2>Logbook</h2><span class="pill">Trip record</span></div>
+  <div class="card">
+    <div class="subtle">Total distance recorded</div><div class="bigNumber" id="logKm">0 km</div>
+    <div style="margin-top:14px" class="bar"><span id="logBar" style="width:0%"></span></div>
+    <div class="subtle" style="margin-top:8px">Use your trip history as the source of truth for your logbook.</div>
+  </div>
+  <div class="sectionHead"><h3>Trip records</h3></div>
+  <div class="tableWrap"><table><thead><tr><th>Date</th><th>Client</th><th>Route</th><th>KM</th><th>Fare</th></tr></thead><tbody id="logRows"></tbody></table></div>
+</section>
+
+<section id="messages" class="view">
+  <div class="sectionHead"><h2>Messages</h2><span class="pill">Templates</span></div>
+  <div class="grid2">
+    <div class="card message">
+      <strong>On my way</strong><textarea id="msg1">Hi! Swifty is on the way. I’ll let you know when I arrive for pickup.</textarea><button class="secondary" onclick="copyMsg('msg1')">Copy message</button>
+    </div>
+    <div class="card message">
+      <strong>Arrived</strong><textarea id="msg2">Hi! I’ve arrived for your pickup. Please let me know when you’re ready.</textarea><button class="secondary" onclick="copyMsg('msg2')">Copy message</button>
+    </div>
+    <div class="card message">
+      <strong>Payment reminder</strong><textarea id="msg3">Hi! Just a quick reminder that your Swifty trip payment is still outstanding. Thank you.</textarea><button class="secondary" onclick="copyMsg('msg3')">Copy message</button>
+    </div>
+    <div class="card message">
+      <strong>Trip complete</strong><textarea id="msg4">Thanks for riding with Swifty. Your trip is complete. Have a great day!</textarea><button class="secondary" onclick="copyMsg('msg4')">Copy message</button>
+    </div>
+  </div>
+</section>
+
+<section id="growth" class="view">
+  <div class="sectionHead"><h2>Growth</h2><button class="secondary" onclick="addProspect()">＋ Prospect</button></div>
+  <div class="stats" id="growthStats"></div>
+  <div id="prospectList" class="list"></div>
+</section>
+
+<section id="invoices" class="view">
+  <div class="sectionHead"><h2>Invoices & payments</h2><span class="pill">Receivables</span></div>
+  <div class="stats" id="invoiceStats"></div>
+  <div class="card">
+    <div class="sectionHead" style="margin-top:0"><h3>Outstanding trips</h3></div>
+    <div id="unpaidList" class="list"></div>
+  </div>
+</section>
+
+<section id="reports" class="view">
+  <div class="sectionHead"><h2>Reports</h2><span class="pill">Current device data</span></div>
+  <div class="grid2">
+    <div class="card"><div class="subtle">Total earnings</div><div class="bigNumber" id="reportEarnings">R0.00</div></div>
+    <div class="card"><div class="subtle">Average trip</div><div class="bigNumber" id="reportAvg">R0.00</div></div>
+    <div class="card"><div class="subtle">Total kilometres</div><div class="bigNumber" id="reportKm">0</div></div>
+    <div class="card"><div class="subtle">Paid rate</div><div class="bigNumber" id="reportPaid">0%</div></div>
+  </div>
+  <div class="sectionHead"><h3>Monthly view</h3></div>
+  <div class="card"><div id="monthlyRows" class="list"></div></div>
+</section>
+
+<section id="settings" class="view">
+  <div class="sectionHead"><h2>Settings</h2></div>
+  <div class="settingsGrid">
+    <div class="card">
+      <div class="setting"><div><strong>Driver name</strong><div class="subtle">Shown in the app</div></div><input id="setName" style="max-width:180px" placeholder="Your name"></div>
+    </div>
+    <div class="card">
+      <div class="setting"><div><strong>Currency</strong><div class="subtle">Default currency</div></div><select id="setCurrency" style="max-width:140px"><option>ZAR</option><option>USD</option><option>GBP</option></select></div>
+    </div>
+  </div>
+  <div class="sectionHead"><h3>Data</h3></div>
+  <div class="grid2">
+    <button class="secondary" onclick="exportData()">⬇ Export data</button>
+    <button class="secondary" onclick="document.getElementById('importFile').click()">⬆ Import data</button>
+    <button class="secondary" onclick="window.print()">🖨 Print / save report</button>
+    <button class="secondary danger" onclick="resetData()">Reset all app data</button>
+  </div>
+  <input id="importFile" type="file" accept="application/json" style="display:none" onchange="importData(event)">
+  <div class="sectionHead"><h3>Swifty assistant</h3></div>
+  <div class="card form">
+    <div class="subtle">Voice support uses your browser's speech recognition when available. Try: “start trip”, “show clients”, or “open reports”.</div>
+    <button class="primary" onclick="startVoice()">🎙 Talk to Swifty</button>
+    <div id="voiceStatus" class="subtle">Ready.</div>
+  </div>
+</section>
+</main>
+
+<nav class="bottomnav">
+  <button class="navbtn active" data-view="dashboard" onclick="navigate('dashboard')"><span class="ico">⌂</span>Home</button>
+  <button class="navbtn" data-view="fare" onclick="navigate('fare')"><span class="ico">🧮</span>Fare</button>
+  <button class="navbtn" data-view="trips" onclick="navigate('trips')"><span class="ico">📖</span>Trips</button>
+  <button class="navbtn" data-view="clients" onclick="navigate('clients')"><span class="ico">👤</span>Clients</button>
+  <button class="navbtn" data-view="settings" onclick="navigate('settings')"><span class="ico">⚙</span>More</button>
+</nav>
+</div>
+
+<div class="modal" id="modal"><div class="sheet"><div class="sheetHead"><h3 id="modalTitle">New</h3><button class="iconbtn" onclick="closeModal()">✕</button></div><div id="modalBody"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='swifty_full_v1';
+const state=JSON.parse(localStorage.getItem(KEY)||'null')||{
+  trips:[],clients:[],prospects:[],settings:{name:'',currency:'ZAR'},pricing:{base:35,rate:12}
+};
+function save(){localStorage.setItem(KEY,JSON.stringify(state)); renderAll()}
+function money(n){return new Intl.NumberFormat('en-ZA',{style:'currency',currency:state.settings.currency||'ZAR'}).format(Number(n||0))}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function toast(msg){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
+function navigate(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.view===id));
+  renderAll();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function openSettings(){navigate('settings')}
+function openModal(title,body){document.getElementById('modalTitle').textContent=title;document.getElementById('modalBody').innerHTML=body;document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+
+function openTrip(){
+  openModal('Start a new trip',`
+    <form class="form" onsubmit="createTrip(event)">
+      <div class="row2">
+        <label>Client<select id="tClient"><option value="">Walk-in / new client</option>${state.clients.map(c=>`<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}</option>`).join('')}</select></label>
+        <label>Date<input id="tDate" type="date" value="${new Date().toISOString().slice(0,10)}"></label>
+      </div>
+      <div class="row2">
+        <label>Pickup<input id="tPickup" required placeholder="Pickup address"></label>
+        <label>Destination<input id="tDestination" required placeholder="Destination"></label>
+      </div>
+      <div class="row2">
+        <label>Distance (km)<input id="tKm" type="number" min="0" step=".1" required oninput="liveTripTotal()"></label>
+        <label>Fare (R)<input id="tFare" type="number" min="0" step=".01" required></label>
+      </div>
+      <div class="row2">
+        <label>Payment<select id="tPayment"><option value="unpaid">Unpaid</option><option value="paid">Paid</option><option value="cash">Cash</option><option value="eft">EFT</option></select></label>
+        <label>Reference / notes<input id="tNotes" placeholder="Optional"></label>
+      </div>
+      <div class="card" style="background:#0a1512"><div class="subtle">Suggested fare</div><div class="bigNumber" id="liveTotal">${money(state.pricing.base)}</div><div class="subtle">Based on your current pricing profile.</div></div>
+      <div class="row2">
+        <button type="button" class="secondary" onclick="closeModal()">Cancel</button>
+        <button class="primary" type="submit">Save trip</button>
+      </div>
+    </form>`);
+}
+function liveTripTotal(){
+  const km=Number(document.getElementById('tKm')?.value||0);
+  const total=state.pricing.base+km*state.pricing.rate;
+  const out=document.getElementById('liveTotal'); if(out)out.textContent=money(total);
+}
+function createTrip(e){
+  e.preventDefault();
+  const clientId=document.getElementById('tClient').value;
+  const client=state.clients.find(c=>c.id===clientId);
+  const trip={
+    id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),
+    date:document.getElementById('tDate').value,
+    client:client?client.name:'Walk-in',
+    clientId:clientId||'',
+    pickup:document.getElementById('tPickup').value.trim(),
+    destination:document.getElementById('tDestination').value.trim(),
+    km:Number(document.getElementById('tKm').value||0),
+    fare:Number(document.getElementById('tFare').value||0),
+    payment:document.getElementById('tPayment').value,
+    notes:document.getElementById('tNotes').value.trim(),
+    createdAt:new Date().toISOString()
+  };
+  state.trips.unshift(trip);save();closeModal();toast('Trip saved ✓');navigate('trips');
+}
+function editTrip(id){
+  const t=state.trips.find(x=>x.id===id); if(!t)return;
+  openModal('Edit trip',`
+    <form class="form" onsubmit="updateTrip(event,'${t.id}')">
+      <div class="row2"><label>Client<input id="eClient" value="${escapeHtml(t.client)}"></label><label>Date<input id="eDate" type="date" value="${escapeHtml(t.date)}"></label></div>
+      <div class="row2"><label>Pickup<input id="ePickup" value="${escapeHtml(t.pickup)}"></label><label>Destination<input id="eDest" value="${escapeHtml(t.destination)}"></label></div>
+      <div class="row2"><label>Distance<input id="eKm" type="number" step=".1" value="${t.km}"></label><label>Fare<input id="eFare" type="number" step=".01" value="${t.fare}"></label></div>
+      <div class="row2"><label>Payment<select id="ePayment"><option ${t.payment==='unpaid'?'selected':''} value="unpaid">Unpaid</option><option ${t.payment==='paid'?'selected':''} value="paid">Paid</option><option ${t.payment==='cash'?'selected':''} value="cash">Cash</option><option ${t.payment==='eft'?'selected':''} value="eft">EFT</option></select></label><label>Notes<input id="eNotes" value="${escapeHtml(t.notes||'')}"></label></div>
+      <div class="row2"><button type="button" class="secondary" onclick="closeModal()">Cancel</button><button class="primary">Save changes</button></div>
+    </form>`);
+}
+function updateTrip(e,id){e.preventDefault();const t=state.trips.find(x=>x.id===id);Object.assign(t,{client:document.getElementById('eClient').value, date:document.getElementById('eDate').value,pickup:document.getElementById('ePickup').value,destination:document.getElementById('eDest').value,km:Number(document.getElementById('eKm').value||0),fare:Number(document.getElementById('eFare').value||0),payment:document.getElementById('ePayment').value,notes:document.getElementById('eNotes').value});save();closeModal();toast('Trip updated')}
+function deleteTrip(id){if(!confirm('Delete this trip?'))return;state.trips=state.trips.filter(t=>t.id!==id);save();toast('Trip deleted')}
+function markPaid(id){const t=state.trips.find(x=>x.id===id);if(!t)return;t.payment='paid';save();toast('Marked as paid ✓')}
+
+function saveCalculatedTrip(){
+  const km=Number(document.getElementById('fareKm').value||0);
+  const fare=Number(document.getElementById('fareBase').value||0)+km*Number(document.getElementById('fareRate').value||0)+Number(document.getElementById('fareExtra').value||0);
+  openTrip();setTimeout(()=>{document.getElementById('tKm').value=km;document.getElementById('tFare').value=fare.toFixed(2);liveTripTotal()},0);
+}
+function calcFare(){
+  const base=Number(document.getElementById('fareBase').value||0),rate=Number(document.getElementById('fareRate').value||0),km=Number(document.getElementById('fareKm').value||0),extra=Number(document.getElementById('fareExtra').value||0);
+  const dist=km*rate,total=base+dist+extra;
+  document.getElementById('fareTotal').textContent=money(total);
+  document.getElementById('fareBreakdown').textContent=`${money(base)} base + ${money(dist)} distance + ${money(extra)} extras`;
+  state.pricing={base,rate};
+  localStorage.setItem(KEY,JSON.stringify(state));
+}
+function renderTrips(){
+  const q=(document.getElementById('tripSearch')?.value||'').toLowerCase(),f=document.getElementById('tripFilter')?.value||'all';
+  const trips=state.trips.filter(t=>(f==='all'||(f==='paid'?t.payment!=='unpaid':t.payment==='unpaid')) && [t.client,t.pickup,t.destination,t.notes].join(' ').toLowerCase().includes(q));
+  document.getElementById('tripList').innerHTML=trips.length?trips.map(t=>`
+    <div class="card trip">
+      <div><div class="tripTitle">${escapeHtml(t.client)} <span class="pill">${escapeHtml(t.payment)}</span></div>
+      <div class="tripMeta">${escapeHtml(t.date)} · ${escapeHtml(t.pickup)} → ${escapeHtml(t.destination)}</div>
+      <div class="tripMeta">${t.km} km ${t.notes?'· '+escapeHtml(t.notes):''}</div></div>
+      <div class="tripRight"><div class="money">${money(t.fare)}</div><div class="tripActions">${t.payment==='unpaid'?`<button class="smallbtn success" onclick="markPaid('${t.id}')">Mark paid</button>`:''}<button class="smallbtn" onclick="editTrip('${t.id}')">Edit</button><button class="smallbtn danger" onclick="deleteTrip('${t.id}')">Delete</button></div></div>
+    </div>`).join(''):`<div class="empty">No trips match your search.</div>`;
+}
+function openClient(){
+  openModal('Add client',`<form class="form" onsubmit="createClient(event)">
+    <label>Name<input id="cName" required placeholder="Client name"></label>
+    <div class="row2"><label>Phone<input id="cPhone" placeholder="Phone"></label><label>Email<input id="cEmail" type="email" placeholder="Email"></label></div>
+    <label>Default pickup / address<input id="cAddress" placeholder="Address"></label>
+    <label>Notes<textarea id="cNotes" placeholder="Gate codes, preferences, instructions..."></textarea></label>
+    <div class="row2"><button type="button" class="secondary" onclick="closeModal()">Cancel</button><button class="primary">Save client</button></div>
+  </form>`);
+}
+function createClient(e){e.preventDefault();state.clients.unshift({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),name:document.getElementById('cName').value.trim(),phone:document.getElementById('cPhone').value.trim(),email:document.getElementById('cEmail').value.trim(),address:document.getElementById('cAddress').value.trim(),notes:document.getElementById('cNotes').value.trim()});save();closeModal();toast('Client added ✓');navigate('clients')}
+function deleteClient(id){if(!confirm('Delete this client?'))return;state.clients=state.clients.filter(c=>c.id!==id);save();toast('Client deleted')}
+function renderClients(){
+ const q=(document.getElementById('clientSearch')?.value||'').toLowerCase();
+ const arr=state.clients.filter(c=>[c.name,c.phone,c.email,c.address,c.notes].join(' ').toLowerCase().includes(q));
+ document.getElementById('clientList').innerHTML=arr.length?arr.map(c=>`<div class="card"><div class="trip"><div><div class="tripTitle">${escapeHtml(c.name)}</div><div class="tripMeta">${escapeHtml(c.phone||'No phone')} · ${escapeHtml(c.email||'No email')}</div><div class="tripMeta">${escapeHtml(c.address||'No saved address')}</div>${c.notes?`<div class="tripMeta">${escapeHtml(c.notes)}</div>`:''}</div><div class="tripActions"><button class="smallbtn danger" onclick="deleteClient('${c.id}')">Delete</button></div></div></div>`).join(''):`<div class="empty">No clients saved yet. Add your first client.</div>`;
+}
+function addProspect(){
+ openModal('Add prospect',`<form class="form" onsubmit="createProspect(event)"><label>Name<input id="pName" required></label><div class="row2"><label>Contact<input id="pContact"></label><label>Status<select id="pStatus"><option>New</option><option>Follow-up</option><option>Won</option><option>Lost</option></select></label></div><label>Notes<textarea id="pNotes"></textarea></label><div class="row2"><button type="button" class="secondary" onclick="closeModal()">Cancel</button><button class="primary">Save prospect</button></div></form>`);
+}
+function createProspect(e){e.preventDefault();state.prospects.unshift({id:String(Date.now()),name:document.getElementById('pName').value,contact:document.getElementById('pContact').value,status:document.getElementById('pStatus').value,notes:document.getElementById('pNotes').value});save();closeModal();toast('Prospect added ✓')}
+function renderGrowth(){
+ const p=state.prospects,won=p.filter(x=>x.status==='Won').length,follow=p.filter(x=>x.status==='Follow-up').length;
+ document.getElementById('growthStats').innerHTML=`<div class="stat"><div class="label">Prospects</div><div class="value">${p.length}</div></div><div class="stat"><div class="label">Follow-ups</div><div class="value">${follow}</div></div><div class="stat"><div class="label">Won</div><div class="value">${won}</div></div><div class="stat"><div class="label">Clients</div><div class="value">${state.clients.length}</div></div>`;
+ document.getElementById('prospectList').innerHTML=p.length?p.map(x=>`<div class="card"><div class="trip"><div><div class="tripTitle">${escapeHtml(x.name)} <span class="pill">${escapeHtml(x.status)}</span></div><div class="tripMeta">${escapeHtml(x.contact||'No contact')}</div><div class="tripMeta">${escapeHtml(x.notes||'')}</div></div></div></div>`).join(''):`<div class="empty">No prospects yet.</div>`;
+}
+function renderInvoices(){
+ const unpaid=state.trips.filter(t=>t.payment==='unpaid'),total=unpaid.reduce((s,t)=>s+t.fare,0),paid=state.trips.filter(t=>t.payment!=='unpaid').reduce((s,t)=>s+t.fare,0);
+ document.getElementById('invoiceStats').innerHTML=`<div class="stat"><div class="label">Outstanding</div><div class="value">${money(total)}</div></div><div class="stat"><div class="label">Collected</div><div class="value">${money(paid)}</div></div><div class="stat"><div class="label">Unpaid trips</div><div class="value">${unpaid.length}</div></div><div class="stat"><div class="label">All trips</div><div class="value">${state.trips.length}</div></div>`;
+ document.getElementById('unpaidList').innerHTML=unpaid.length?unpaid.map(t=>`<div class="listItem"><div><strong>${escapeHtml(t.client)}</strong><div class="subtle">${escapeHtml(t.date)} · ${escapeHtml(t.destination)}</div></div><div style="text-align:right"><strong>${money(t.fare)}</strong><br><button class="smallbtn success" onclick="markPaid('${t.id}')">Mark paid</button></div></div>`).join(''):`<div class="empty">No outstanding trips 🎉</div>`;
+}
+function renderReports(){
+ const trips=state.trips,total=trips.reduce((s,t)=>s+t.fare,0),km=trips.reduce((s,t)=>s+t.km,0),paid=trips.filter(t=>t.payment!=='unpaid').length;
+ document.getElementById('reportEarnings').textContent=money(total);
+ document.getElementById('reportAvg').textContent=money(trips.length?total/trips.length:0);
+ document.getElementById('reportKm').textContent=km.toFixed(1)+' km';
+ document.getElementById('reportPaid').textContent=(trips.length?Math.round(paid/trips.length*100):0)+'%';
+ const months={}; trips.forEach(t=>{const m=(t.date||'').slice(0,7)||'Unknown';months[m]??={count:0,fare:0,km:0};months[m].count++;months[m].fare+=t.fare;months[m].km+=t.km});
+ document.getElementById('monthlyRows').innerHTML=Object.keys(months).sort().reverse().map(m=>`<div class="listItem"><div><strong>${escapeHtml(m)}</strong><div class="subtle">${months[m].count} trips · ${months[m].km.toFixed(1)} km</div></div><strong>${money(months[m].fare)}</strong></div>`).join('')||'<div class="empty">No monthly data yet.</div>';
+}
+function renderLogbook(){
+ const km=state.trips.reduce((s,t)=>s+t.km,0);
+ document.getElementById('logKm').textContent=km.toFixed(1)+' km';
+ document.getElementById('logBar').style.width=Math.min(100,km%100)+'%';
+ document.getElementById('logRows').innerHTML=state.trips.length?state.trips.map(t=>`<tr><td>${escapeHtml(t.date)}</td><td>${escapeHtml(t.client)}</td><td>${escapeHtml(t.pickup)} → ${escapeHtml(t.destination)}</td><td>${t.km}</td><td>${money(t.fare)}</td></tr>`).join(''):'<tr><td colspan="5" style="text-align:center;color:#9ba9a4">No trip records yet.</td></tr>';
+}
+function renderDashboard(){
+ const today=new Date().toISOString().slice(0,10),tod=state.trips.filter(t=>t.date===today),todayFare=tod.reduce((s,t)=>s+t.fare,0),allFare=state.trips.reduce((s,t)=>s+t.fare,0);
+ document.getElementById('dashStats').innerHTML=`<div class="stat"><div class="label">Today's trips</div><div class="value">${tod.length}</div></div><div class="stat"><div class="label">Today's earnings</div><div class="value">${money(todayFare)}</div></div><div class="stat"><div class="label">Total trips</div><div class="value">${state.trips.length}</div></div><div class="stat"><div class="label">Total earnings</div><div class="value">${money(allFare)}</div></div>`;
+ document.getElementById('recentTrips').innerHTML=state.trips.slice(0,4).map(t=>`<div class="card" style="margin-bottom:10px"><div class="trip"><div><div class="tripTitle">${escapeHtml(t.client)}</div><div class="tripMeta">${escapeHtml(t.pickup)} → ${escapeHtml(t.destination)} · ${t.km} km</div></div><div class="money">${money(t.fare)}</div></div></div>`).join('')||'<div class="empty">No trips saved yet. Start your first trip above.</div>';
+}
+function renderSettings(){document.getElementById('setName').value=state.settings.name||'';document.getElementById('setCurrency').value=state.settings.currency||'ZAR'}
+document.getElementById('setName').addEventListener('input',e=>{state.settings.name=e.target.value;localStorage.setItem(KEY,JSON.stringify(state))});
+document.getElementById('setCurrency').addEventListener('change',e=>{state.settings.currency=e.target.value;save();toast('Currency updated')});
+
+function renderAll(){
+ renderDashboard();renderTrips();renderClients();renderLogbook();renderGrowth();renderInvoices();renderReports();renderSettings();calcFare();
+}
+function copyMsg(id){const text=document.getElementById(id).value;navigator.clipboard?.writeText(text).then(()=>toast('Message copied ✓')).catch(()=>toast('Select and copy the message'))}
+function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='swifty-backup.json';a.click();URL.revokeObjectURL(a.href);toast('Backup exported')}
+function importData(e){const f=e.target.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.trips||!d.clients)throw new Error();Object.assign(state,d);save();toast('Backup imported ✓')}catch{toast('That backup file is not valid')}};r.readAsText(f)}
+function resetData(){if(!confirm('This will erase all local Swifty data on this device. Continue?'))return;localStorage.removeItem(KEY);location.reload()}
+function startVoice(){
+ const status=document.getElementById('voiceStatus');
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){status.textContent='Voice recognition is not supported by this browser. Try Chrome on Android.';return}
+ const r=new SR();r.lang='en-ZA';r.interimResults=false;r.maxAlternatives=1;
+ status.textContent='Listening…';
+ r.onresult=e=>{const text=e.results[0][0].transcript.toLowerCase();status.textContent='Heard: '+text;
+   if(text.includes('start trip')||text.includes('new trip'))openTrip();
+   else if(text.includes('client'))navigate('clients');
+   else if(text.includes('report'))navigate('reports');
+   else if(text.includes('fare'))navigate('fare');
+   else if(text.includes('trip')||text.includes('history'))navigate('trips');
+   else if(text.includes('setting'))navigate('settings');
+   else toast('Try “start trip”, “clients”, “fare”, or “reports”');
+ };
+ r.onerror=()=>status.textContent='Voice input stopped. Tap again to retry.';
+ r.onend=()=>{if(status.textContent==='Listening…')status.textContent='Ready.'};
+ r.start();
+}
+renderAll();
+</script>
+</body>
+</html>
