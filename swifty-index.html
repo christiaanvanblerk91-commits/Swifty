@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b0d12">
+<title>SWIFTY</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#080a0f;color:#f4f7fb;font-family:Arial,sans-serif}header{padding:16px;background:#121722;border-bottom:1px solid #2a3240;position:sticky;top:0;z-index:5}.brand{font-size:28px;font-weight:900;letter-spacing:2px}.sub{color:#9da7b7;font-size:12px}main{max-width:760px;margin:auto;padding:16px 16px 90px}.page{display:none}.page.active{display:block}.card{background:#121722;border:1px solid #2a3240;border-radius:18px;padding:16px;margin:0 0 14px}h1,h2{margin-top:4px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}label{display:block;color:#9da7b7;font-size:12px;margin:8px 0 5px}input,select,textarea{width:100%;padding:12px;border-radius:11px;border:1px solid #2a3240;background:#0b0f16;color:#fff}textarea{min-height:90px}button{border:0;border-radius:11px;padding:12px 14px;font-weight:800;background:#d9ff45;color:#101300;margin:5px 3px 0 0}.secondary{background:#252c38;color:#fff}.danger{background:#ff6374;color:#240008}.row{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid #2a3240}.row:last-child{border:0}.muted{color:#9da7b7;font-size:12px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:#171d29;border:1px solid #2a3240;border-radius:14px;padding:13px}.stat b{display:block;font-size:22px}.stat span{font-size:11px;color:#9da7b7}nav{position:fixed;bottom:0;left:0;right:0;background:#0d1118;border-top:1px solid #2a3240;display:grid;grid-template-columns:repeat(5,1fr);z-index:10}nav button{background:transparent;color:#9da7b7;margin:0;border-radius:0;font-size:10px}nav button.active{color:#d9ff45}.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#fff;color:#111;padding:10px 15px;border-radius:12px;display:none;z-index:20}.toast.show{display:block}@media(max-width:430px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<header><div class="brand">SWIFTY</div><div class="sub">FAST. SIMPLE. YOURS.</div></header>
+
+<main>
+<section id="home" class="page active">
+<div class="card"><h1>Welcome to Swifty 👋</h1><p class="muted">Your simple shuttle and trip manager. Everything below is stored on this device.</p><button onclick="show('trip')">Start a Trip</button><button class="secondary" onclick="say('Hi! I am Swifty. Ready when you are.')">Talk to Swifty</button></div>
+<div class="stats"><div class="stat"><b id="st">0</b><span>Trips today</span></div><div class="stat"><b id="sk">0</b><span>KM today</span></div><div class="stat"><b id="sr">R0</b><span>Revenue today</span></div></div>
+<div class="card"><h2>Quick access</h2><button onclick="show('clients')">Clients</button><button class="secondary" onclick="show('log')">Logbook</button><button class="secondary" onclick="show('monthly')">Monthly</button></div>
+</section>
+
+<section id="trip" class="page">
+<h1>Start Trip</h1><div class="card">
+<label>Client</label><select id="tc"></select>
+<div class="grid"><div><label>Date</label><input id="td" type="date"></div><div><label>Kilometres</label><input id="km" type="number" min="0" step=".1"></div></div>
+<div class="grid"><div><label>Pickup</label><input id="pu" placeholder="Pickup location"></div><div><label>Drop-off</label><input id="do" placeholder="Drop-off location"></div></div>
+<div class="grid"><div><label>Base fare (R)</label><input id="base" type="number" step=".01"></div><div><label>Fare per KM (R)</label><input id="rate" type="number" step=".01"></div></div>
+<label>Total fare (R)</label><input id="fare" type="number" step=".01">
+<button onclick="calc()">Calculate Fare</button><button class="secondary" onclick="saveTrip()">Save Trip</button>
+</div></section>
+
+<section id="clients" class="page">
+<h1>Clients</h1><div class="card"><div class="grid"><div><label>Name</label><input id="cn"></div><div><label>Phone</label><input id="cp"></div></div><label>Area</label><input id="ca"><label>Notes</label><textarea id="co"></textarea><button onclick="addClient()">Add Client</button></div>
+<div class="card" id="cl"></div></section>
+
+<section id="log" class="page"><h1>Logbook</h1><div class="card" id="ll"></div></section>
+
+<section id="monthly" class="page"><h1>Monthly</h1><div class="card"><label>Month</label><input id="month" type="month" onchange="render()"></div><div class="stats"><div class="stat"><b id="mt">0</b><span>Trips</span></div><div class="stat"><b id="mk">0</b><span>KM</span></div><div class="stat"><b id="mr">R0</b><span>Revenue</span></div></div><div class="card" id="days"></div></section>
+</main>
+
+<div id="toast" class="toast"></div>
+<nav><button data-p="home" onclick="show('home')">⌂<br>Home</button><button data-p="trip" onclick="show('trip')">▶<br>Trip</button><button data-p="clients" onclick="show('clients')">👥<br>Clients</button><button data-p="log" onclick="show('log')">▤<br>Logbook</button><button data-p="monthly" onclick="show('monthly')">R<br>Monthly</button></nav>
+
+<script>
+const K='swifty_data_v2';
+let db=JSON.parse(localStorage.getItem(K)||'null')||{clients:[],trips:[]};
+const $=id=>document.getElementById(id),today=()=>new Date().toISOString().slice(0,10);
+function persist(){localStorage.setItem(K,JSON.stringify(db));render()}
+function money(n){return 'R'+Number(n||0).toFixed(2)}
+function esc(s){return String(s||'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]))}
+function toast(s){$('toast').textContent=s;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1800)}
+function show(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.p===id));render()}
+function say(s){if('speechSynthesis'in window)speechSynthesis.speak(new SpeechSynthesisUtterance(s));toast(s)}
+function clients(){let o='<option value="">Select client</option>'+db.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');$('tc').innerHTML=o}
+function addClient(){let n=$('cn').value.trim();if(!n)return toast('Enter a client name');db.clients.push({id:Date.now(),name:n,phone:$('cp').value.trim(),area:$('ca').value.trim(),notes:$('co').value.trim()});$('cn').value=$('cp').value=$('ca').value=$('co').value='';persist();toast('Client added')}
+function calc(){$('fare').value=(Number($('base').value||0)+Number($('km').value||0)*Number($('rate').value||0)).toFixed(2)}
+function saveTrip(){let c=Number($('tc').value),km=Number($('km').value||0);if(!c)return toast('Select a client');if(!$('pu').value||!$('do').value)return toast('Enter pickup and drop-off');db.trips.unshift({id:Date.now(),date:$('td').value||today(),client:c,km,fare:Number($('fare').value||0),pickup:$('pu').value,dropoff:$('do').value});$('pu').value=$('do').value=$('km').value=$('fare').value='';persist();toast('Trip saved');show('log')}
+function cname(id){return db.clients.find(c=>c.id===id)?.name||'Unknown'}
+function renderClients(){$('cl').innerHTML=db.clients.length?db.clients.map(c=>`<div class="row"><div><b>${esc(c.name)}</b><div class="muted">${esc(c.phone)} · ${esc(c.area)}</div></div><button class="danger" onclick="delClient(${c.id})">Delete</button></div>`).join(''):'<div class="muted">No clients yet.</div>'}
+function delClient(id){db.clients=db.clients.filter(c=>c.id!==id);persist()}
+function renderLog(){$('ll').innerHTML=db.trips.length?db.trips.map(t=>`<div class="row"><div><b>${esc(cname(t.client))}</b><div class="muted">${t.date} · ${esc(t.pickup)} → ${esc(t.dropoff)} · ${t.km} km</div></div><b>${money(t.fare)}</b></div>`).join(''):'<div class="muted">No trips recorded yet.</div>'}
+function renderHome(){let a=db.trips.filter(t=>t.date===today());$('st').textContent=a.length;$('sk').textContent=a.reduce((x,t)=>x+Number(t.km),0).toFixed(1);$('sr').textContent=money(a.reduce((x,t)=>x+Number(t.fare),0))}
+function renderMonth(){let m=$('month').value||today().slice(0,7),a=db.trips.filter(t=>t.date.startsWith(m));$('month').value=m;$('mt').textContent=a.length;$('mk').textContent=a.reduce((x,t)=>x+Number(t.km),0).toFixed(1);$('mr').textContent=money(a.reduce((x,t)=>x+Number(t.fare),0));let d={};a.forEach(t=>{d[t.date]??=[0,0,0];d[t.date][0]++;d[t.date][1]+=Number(t.km);d[t.date][2]+=Number(t.fare)});$('days').innerHTML=Object.keys(d).sort().reverse().map(x=>`<div class="row"><span>${x}</span><span>${d[x][0]} trips · ${d[x][1].toFixed(1)} km · ${money(d[x][2])}</span></div>`).join('')||'<div class="muted">No trips this month.</div>'}
+function render(){clients();renderClients();renderLog();renderHome();renderMonth()}
+$('td').value=today();$('month').value=today().slice(0,7);render();
+</script>
+</body>
+</html>
